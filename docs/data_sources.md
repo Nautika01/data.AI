@@ -1,5 +1,18 @@
 # 데이터 수집 가이드 — 녹조 7일 예측
 
+> **대회 배포 번들이 우선이다.** 조류경보제 측정자료·다목적댐 운영자료·ASOS는 번들로 제공되므로
+> 먼저 번들을 `data/raw/`(조류경보제, sample_submission)와 `data/external/`(댐, 기상)에 넣고,
+> 파일의 열 이름을 `configs/bloom.yaml`의 mapping에 맞춘다. 아래 공개 출처는 번들 보강·검증용이다.
+> 정답 열은 `iem_bgalage_cell_co`로 확정. 대상 지점 5곳의 조사지점코드는 [task_spec.md](task_spec.md) 참조.
+
+## 0. 번들 적재 체크리스트
+
+1. `data/raw/algae_alert.csv` ← 조류경보제 측정자료 (파일명이 다르면 `configs/bloom.yaml`의 `algae.file` 수정)
+2. `data/raw/sample_submission.csv` ← 평가 대상 (지점, base_date, target_date)
+3. `data/external/dam_daily.csv`, `data/external/kma_asos_daily.csv` ← 댐 운영, ASOS
+4. `data/external/sites.csv` ← 지점코드·지점명·댐·ASOS 지점 매핑 (샘플: `make sample` 후 `data/sample/external/sites.csv` 참고)
+5. `make data` 실행 → 로그의 "매핑에 있으나 파일에 없는 열" 경고가 없을 때까지 mapping 수정
+
 모든 원본은 `data/raw/`(대회 제공) 또는 `data/external/`(공개 데이터)에 저장하고,
 `data/README.md`의 표에 출처·수집일·기간을 기록한다. 파일명은 `출처_내용_기간.csv` 형식.
 (예: `nier_algae_alert_2015_2025.csv`, `kma_asos_daily_2015_2025.csv`)
@@ -34,6 +47,11 @@
 - 항목: 저수위, 저수량, 유입량, 총방류량, 강우량
 - 파생: 체류시간(일) ≈ 저수량 / 방류량. 유입량 7일 누적, 방류량 7일 평균.
 - 하천 지점(칠서, 물금 등)은 상류 댐(남강댐, 밀양댐, 안동·임하댐 등) 방류량과 하천 유량관측소 자료를 쓴다.
+
+## 4-1. 댐유역 하천 일평균수위 (보강, 번들 미포함)
+
+- DataON <https://dataon.kisti.re.kr> 에서 「댐유역 하천 일평균수위」(K-water 국가참조표준) 검색 후 다운로드
+- 하천 지점(해평, 강정·고령, 칠서, 물금·매리)의 수위 변동을 유량 대리변수로 활용. 여유가 있을 때 추가.
 
 ## 5. 지점 메타데이터
 

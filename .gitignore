@@ -35,6 +35,7 @@ models/
 mlruns/
 reports/figures/*
 !reports/figures/.gitkeep
+reports/*.csv
 
 # Tooling
 .pytest_cache/

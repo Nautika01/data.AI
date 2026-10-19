@@ -34,7 +34,7 @@
 | 6 | 어선 사고예방을 위한 항적데이터 분석 | 해양 · 시공간 |
 | 7 | 댐·하천 유해남조류(녹조) 7일 예측 AI 모델 개발 | 수질 · 시계열 |
 
-**잠정 과제: 7번 댐·하천 유해남조류(녹조) 7일 예측** (팀 논의 후 확정 예정)
+**확정 과제: 7번 댐·하천 유해남조류(녹조) 7일 예측** — 공식 정의는 [docs/task_spec.md](docs/task_spec.md)
 작업 계획은 [docs/work_plan.md](docs/work_plan.md), 데이터 수집 방법은 [docs/data_sources.md](docs/data_sources.md),
 과제 비교는 [docs/task_candidates.md](docs/task_candidates.md)를 참고하세요.
 
@@ -50,11 +50,14 @@
 ├── notebooks/           # EDA·실험 노트북 (번호-주제 명명: 01_eda_xxx.ipynb)
 ├── src/data_ai/         # 재사용 가능한 파이썬 패키지
 │   ├── config.py        # 경로·시드 등 공통 설정
+│   ├── bloom.py         # 녹조 과제 데이터 결합 (정답·분할 규칙 포함)
 │   ├── data.py          # 데이터 로딩·저장
 │   ├── features.py      # 피처 엔지니어링
 │   ├── models.py        # 학습·추론
-│   ├── evaluate.py      # 평가 지표
+│   ├── evaluate.py      # 평가 지표 (공식: log10 RMSE·MAE, R², NSE, F1@10,000)
+│   ├── viz.py           # 그림 스타일·팔레트·한글 폰트
 │   └── utils.py         # 로깅·시드 고정 등
+├── configs/bloom.yaml   # 열 이름 매핑, 집계 창, 정답·분할 규칙
 ├── scripts/             # 파이프라인 실행 스크립트
 ├── reports/             # 보고서·발표자료·그림
 ├── docs/                # 대회 안내, 과제 후보, 해결안 양식
@@ -77,13 +80,14 @@ pip install -e .
 cp .env.example .env             # 필요 시 API 키 등 입력
 
 # 3. 파이프라인 실행
-make data        # 원본 → processed
-make train       # 모델 학습
-make evaluate    # 평가 지표 산출
-make report      # 보고서용 그림 생성
+make sample        # (실제 데이터 전) 같은 형식의 샘플 데이터 생성 → data/sample/
+make data-sample   # 샘플로 결합 점검 → data/processed/bloom.parquet
+make data          # 실제 배포 데이터(data/raw, data/external) 결합
+make train         # 모델 학습 (구현 예정)
+make evaluate      # 평가 지표 산출 (구현 예정)
 
 # 4. 노트북
-jupyter lab
+jupyter lab        # notebooks/01_eda_bloom.ipynb 부터
 ```
 
 ## 작업 원칙
@@ -98,7 +102,7 @@ jupyter lab
 
 상세 일정은 [docs/work_plan.md](docs/work_plan.md) 4장 참조.
 
-- [ ] 과제 확정 (잠정: 녹조 7일 예측)
+- [x] 과제 확정 (녹조 7일 예측)
 - [ ] 참가 신청, 공식 요강·제공 데이터 확인, 역할 분담 (10-19)
 - [ ] 조류경보제·기상·댐 운영 데이터 수집, `data/README.md` 기록 (~10-21)
 - [ ] 데이터 결합 및 EDA (~10-23)

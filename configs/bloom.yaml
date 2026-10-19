@@ -1,0 +1,80 @@
+# 녹조 7일 예측 — 데이터 결합 설정 (공식 과제 정의 2026-10-15 개정판 기준)
+#
+# 배포 데이터의 열 이름이 다르면 아래 mapping의 왼쪽(원본 열 이름)만 고치면 된다.
+# 확정된 열: 정답 = iem_bgalage_cell_co (유해남조류 세포수 합계, cells/mL)
+# 나머지 조류경보제 열 이름은 배포 파일을 열어 확인 후 수정할 것. (현재 값은 샘플 데이터 기준)
+
+sites_file: sites.csv            # data/external/ 기준. 지점코드 ↔ 지점명 ↔ ASOS 지점 ↔ 댐 매핑표
+
+algae:                           # 조류경보제 측정자료 (data/raw/)
+  file: algae_alert.csv
+  mapping:
+    pt_no: site_code             # 조사지점코드 (예: 2022G05 물금·매리)
+    pt_nm: site_name
+    wmcymd: date                 # 측정일
+    iem_bgalage_cell_co: cyano_cells   # ★ 예측 대상
+    iem_temp: water_temp
+    iem_ph: ph
+    iem_tran: transparency
+    iem_turb: turbidity
+    iem_do: do
+    iem_chla: chl_a
+    iem_mc_lr: mc_lr             # 조류독소 (있을 때만)
+
+weather:                         # 기상청 ASOS 일 자료 (data/external/)
+  file: kma_asos_daily.csv
+  key: asos_id
+  mapping:
+    지점: asos_id
+    일시: date
+    평균기온(°C): temp_mean
+    최고기온(°C): temp_max
+    최저기온(°C): temp_min
+    일강수량(mm): precip
+    평균 풍속(m/s): wind
+    합계 일사량(MJ/m2): solar
+    합계 일조시간(hr): sunshine
+    평균 상대습도(%): humidity
+  windows: [7, 14, 28]           # 기준일 포함 과거 N일 집계
+  aggs:
+    temp_mean: [mean]
+    temp_max: [max]
+    temp_min: [min]
+    precip: [sum]
+    wind: [mean]
+    solar: [mean]
+    sunshine: [sum]
+    humidity: [mean]
+  tolerance_days: 3              # 기준일과 기상 자료 날짜가 어긋날 때 허용 범위
+
+dam:                             # 다목적댐 운영 일 자료 (data/external/)
+  file: dam_daily.csv
+  key: dam_name
+  mapping:
+    댐명: dam_name
+    일자: date
+    강우량(mm): dam_rain
+    저수위(EL.m): level
+    저수량(백만m3): storage
+    저수율(%): storage_rate
+    유입량(m3/s): inflow
+    총방류량(m3/s): outflow
+  windows: [7, 14, 28]
+  aggs:
+    dam_rain: [sum]
+    level: [mean]
+    storage: [mean]
+    storage_rate: [mean]
+    inflow: [mean, sum]
+    outflow: [mean, sum]
+  tolerance_days: 3
+
+target:
+  horizon_days: 7                # 기준일 + 7일
+  tolerance_days: 3              # ±3일 이내 가장 가까운 측정을 정답으로 인정
+
+split:                           # 공식 분할: ~2024 학습 / 2025 검증 / 2026 평가
+  train_max_year: 2024
+  valid_year: 2025
+
+output: bloom                    # data/processed/bloom.parquet

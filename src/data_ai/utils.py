@@ -18,6 +18,7 @@ def get_logger(name: str = "data_ai", level: int = logging.INFO) -> logging.Logg
             logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
         )
         logger.addHandler(handler)
+        logger.propagate = False
     logger.setLevel(level)
     return logger
 
