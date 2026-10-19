@@ -34,7 +34,7 @@
 | 6 | 어선 사고예방을 위한 항적데이터 분석 | 해양 · 시공간 |
 | 7 | 댐·하천 유해남조류(녹조) 7일 예측 AI 모델 개발 | 수질 · 시계열 |
 
-**선정 과제: 7번 댐·하천 유해남조류(녹조) 7일 예측** (2026-10-19 확정)
+**잠정 과제: 7번 댐·하천 유해남조류(녹조) 7일 예측** (팀 논의 후 확정 예정)
 작업 계획은 [docs/work_plan.md](docs/work_plan.md), 데이터 수집 방법은 [docs/data_sources.md](docs/data_sources.md),
 과제 비교는 [docs/task_candidates.md](docs/task_candidates.md)를 참고하세요.
 
@@ -98,7 +98,7 @@ jupyter lab
 
 상세 일정은 [docs/work_plan.md](docs/work_plan.md) 4장 참조.
 
-- [x] 과제 선정 (녹조 7일 예측)
+- [ ] 과제 확정 (잠정: 녹조 7일 예측)
 - [ ] 참가 신청, 공식 요강·제공 데이터 확인, 역할 분담 (10-19)
 - [ ] 조류경보제·기상·댐 운영 데이터 수집, `data/README.md` 기록 (~10-21)
 - [ ] 데이터 결합 및 EDA (~10-23)
