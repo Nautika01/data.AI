@@ -1,0 +1,34 @@
+# core
+numpy>=1.26
+pandas>=2.2
+scipy>=1.13
+scikit-learn>=1.5
+pyarrow>=16.0
+
+# gradient boosting
+lightgbm>=4.3
+xgboost>=2.0
+
+# visualization
+matplotlib>=3.9
+seaborn>=0.13
+plotly>=5.22
+
+# geospatial (결빙·항적·수문 과제용, 필요 시)
+geopandas>=1.0
+shapely>=2.0
+
+# NLP (대체텍스트·회의록 과제용, 필요 시)
+# konlpy>=0.6
+# transformers>=4.44
+# torch>=2.3
+
+# notebooks & tooling
+jupyterlab>=4.2
+python-dotenv>=1.0
+tqdm>=4.66
+pyyaml>=6.0
+
+# dev
+pytest>=8.2
+ruff>=0.5
