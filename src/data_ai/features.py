@@ -99,3 +99,36 @@ def to_matrix(df: pd.DataFrame, cols: list[str], categories: dict[str, list] | N
             x[c] = pd.Categorical(x[c].astype(str).where(x[c].notna(), None), categories=cats)
             categories[c] = cats
     return x, categories
+
+
+def add_dynamics_features(df: pd.DataFrame, train_mask: pd.Series) -> pd.DataFrame:
+    """실험용 동역학 피처(모두 기준일 이전 정보만 사용).
+
+    - cells_growth1: 최근 두 측정 사이 주당 로그 증가율 (주 2회 측정 구간에서 짧은 간격 정보 활용)
+    - cells_growth2: 그 이전 구간의 로그 증가율
+    - cells_max3:   최근 4회 측정 최댓값(로그)
+    - wt_trend:     수온 변화(현재 − 직전)
+    - w_degday14/28: 20℃ 초과 적산온도
+    - w_dry7:       최근 7일 강수 5mm 미만 여부
+    - cells_anom:   (지점, 월) 학습 구간 중앙값 대비 로그 편차
+    """
+    d = df.copy()
+    lc = np.log10(d["cyano_cells"].fillna(d["cyano_cells_lag1"]) + 1)
+    l1 = np.log10(d["cyano_cells_lag1"] + 1)
+    l2 = np.log10(d["cyano_cells_lag2"] + 1)
+    d["cells_growth1"] = (lc - l1) / d["days_since_prev"].clip(lower=1) * 7
+    d["cells_growth2"] = l1 - l2
+    d["cells_max3"] = np.log10(
+        d[["cyano_cells", "cyano_cells_lag1", "cyano_cells_lag2", "cyano_cells_lag3"]].max(axis=1)
+        + 1
+    )
+    d["wt_trend"] = d["water_temp"] - d["water_temp_lag1"]
+    d["w_degday14"] = (d["w_temp_mean_mean14d"] - 20).clip(lower=0) * 14
+    d["w_degday28"] = (d["w_temp_mean_mean28d"] - 20).clip(lower=0) * 28
+    d["w_dry7"] = (d["w_precip_sum7d"] < 5).astype(int)
+    clim = (
+        d[train_mask].groupby(["station_id", "month"])["log10_cells"].median().rename("cells_clim")
+    )
+    d = d.join(clim, on=["station_id", "month"])
+    d["cells_anom"] = lc - d["cells_clim"]
+    return d

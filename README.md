@@ -38,6 +38,19 @@
 작업 계획은 [docs/work_plan.md](docs/work_plan.md), 데이터 수집 방법은 [docs/data_sources.md](docs/data_sources.md),
 모델링 기록은 [docs/modeling_notes.md](docs/modeling_notes.md), 과제 비교는 [docs/task_candidates.md](docs/task_candidates.md)를 참고하세요.
 
+## 산출물 바로가기
+
+| 산출물 | 위치 |
+|---|---|
+| 방법 설명서 초안 (제출용) | [docs/method_description.md](docs/method_description.md) |
+| 제출 파일 | `reports/submission.csv` (`make train`으로 재생성) |
+| 발표 슬라이드 뼈대 (12장, pptx) | `reports/slides/bloom_deck.pptx` (`build_deck.js`로 재생성) |
+| 발표 예상 질문 20개 | [docs/presentation_qa.md](docs/presentation_qa.md) |
+| 모델링 기록·실험 표 | [docs/modeling_notes.md](docs/modeling_notes.md), `reports/metrics.csv`, `reports/experiments.csv` |
+| 초보자용 코드 가이드 | `notebooks/00_code_guide.ipynb` |
+| EDA | `notebooks/01_eda_bloom.ipynb` |
+| 문제해결 제안서 초안 | [docs/proposal_submission.md](docs/proposal_submission.md) |
+
 ## 저장소 구조
 
 ```
@@ -58,7 +71,7 @@
 │   ├── viz.py           # 그림 스타일·팔레트·한글 폰트
 │   └── utils.py         # 로깅·시드 고정 등
 ├── configs/bloom.yaml   # 열 이름 매핑, 집계 창, 정답·분할 규칙
-├── scripts/             # 파이프라인 실행 스크립트
+├── scripts/             # make_dataset, train, evaluate, score_submission, experiments, fetch_data_go_kr
 ├── reports/             # 보고서·발표자료·그림
 ├── docs/                # 대회 안내, 과제 후보, 해결안 양식
 ├── tests/               # 단위 테스트

@@ -42,6 +42,9 @@ reports/*.csv
 !reports/submission.csv
 !reports/metrics.csv
 !reports/baseline_valid_2025.csv
+!reports/experiments.csv
+reports/slides/*.jpg
+reports/slides/*.pdf
 
 # Tooling
 .pytest_cache/
