@@ -52,7 +52,7 @@ const chartStyle = (title) => ({
 pres.addSection({ title: "도입" });
 let s = pres.addSlide({ masterName: "DARK", sectionTitle: "도입" });
 s.addText("수질·수문·기상 융합 기반\n유해남조류 7일 예측 모델", { placeholder: "title" });
-s.addText("2026 DATA·AI 분석 경진대회 문제해결 부문 · 과제 7\n팀명: (기입)  ·  팀원: (기입)  ·  2026. 11.", { placeholder: "body" });
+s.addText("2026 DATA·AI 분석 경진대회 문제해결 부문 · 과제 7\n팀명: 19일의 월요일  ·  팀원: (기입)  ·  2026. 11.", { placeholder: "body" });
 s.addNotes("발표 2분 안에 문제·접근·결과 한 줄씩 말하고 들어간다.");
 
 // 2. 문제 정의
