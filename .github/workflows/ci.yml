@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-      - run: pip install numpy pandas scikit-learn python-dotenv joblib pytest ruff
+      - run: pip install numpy pandas pyarrow scikit-learn lightgbm python-dotenv pyyaml requests joblib pytest ruff
       - run: pip install -e .
       - run: ruff check src scripts tests
       - run: python -m pytest -q
