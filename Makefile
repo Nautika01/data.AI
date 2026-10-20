@@ -1,4 +1,4 @@
-.PHONY: setup data train evaluate report lint test clean
+.PHONY: setup data train evaluate score report lint test clean all
 
 PY ?= python
 
@@ -14,6 +14,11 @@ train:
 
 evaluate:
 	$(PY) scripts/evaluate.py
+
+score:
+	$(PY) scripts/score_submission.py reports/submission.csv
+
+all: data train evaluate
 
 report:
 	$(PY) scripts/make_figures.py

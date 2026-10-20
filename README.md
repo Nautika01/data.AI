@@ -36,7 +36,7 @@
 
 **확정 과제: 7번 댐·하천 유해남조류(녹조) 7일 예측** — 공식 정의는 [docs/task_spec.md](docs/task_spec.md)
 작업 계획은 [docs/work_plan.md](docs/work_plan.md), 데이터 수집 방법은 [docs/data_sources.md](docs/data_sources.md),
-과제 비교는 [docs/task_candidates.md](docs/task_candidates.md)를 참고하세요.
+모델링 기록은 [docs/modeling_notes.md](docs/modeling_notes.md), 과제 비교는 [docs/task_candidates.md](docs/task_candidates.md)를 참고하세요.
 
 ## 저장소 구조
 
@@ -52,8 +52,8 @@
 │   ├── config.py        # 경로·시드 등 공통 설정
 │   ├── bloom.py         # 녹조 과제 데이터 결합 (정답·분할 규칙 포함)
 │   ├── data.py          # 데이터 로딩·저장
-│   ├── features.py      # 피처 엔지니어링
-│   ├── models.py        # 학습·추론
+│   ├── features.py      # 입력 허용 목록, 결측 대체 전략 3안
+│   ├── models.py        # LightGBM 학습·예측·중요도
 │   ├── evaluate.py      # 평가 지표 (공식: log10 RMSE·MAE, R², NSE, F1@10,000)
 │   ├── viz.py           # 그림 스타일·팔레트·한글 폰트
 │   └── utils.py         # 로깅·시드 고정 등
@@ -81,8 +81,9 @@ cp .env.example .env             # 필요 시 API 키 등 입력
 
 # 3. 파이프라인 실행
 make data          # data/raw 의 대회 배포 번들 → data/processed/bloom.parquet
-make train         # 모델 학습 (구현 예정)
-make evaluate      # 평가 지표 산출 (구현 예정)
+make train         # 결측 전략 비교 → LightGBM 학습·롤링 검증 → reports/submission.csv
+make evaluate      # 검증 지표·피처 중요도 표 출력
+make score         # 제출 파일 형식 검사 + 번들 실측으로 자체 채점(참고용)
 
 # 4. 노트북
 jupyter lab        # notebooks/01_eda_bloom.ipynb 부터

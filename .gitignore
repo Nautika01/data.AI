@@ -39,6 +39,9 @@ mlruns/
 reports/figures/*
 !reports/figures/.gitkeep
 reports/*.csv
+!reports/submission.csv
+!reports/metrics.csv
+!reports/baseline_valid_2025.csv
 
 # Tooling
 .pytest_cache/
