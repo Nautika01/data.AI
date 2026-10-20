@@ -17,10 +17,13 @@ venv/
 .env
 *.key
 
-# Data (keep .gitkeep and README only)
+# Data: 대회 배포 번들(data/raw/*.csv, README)은 공공저작물이라 추적. 가공 결과는 제외
 data/**
 !data/README.md
+!data/raw/
 !data/raw/.gitkeep
+!data/raw/*.csv
+!data/raw/README.md
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !data/external/.gitkeep

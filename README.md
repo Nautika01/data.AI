@@ -80,9 +80,7 @@ pip install -e .
 cp .env.example .env             # 필요 시 API 키 등 입력
 
 # 3. 파이프라인 실행
-make sample        # (실제 데이터 전) 같은 형식의 샘플 데이터 생성 → data/sample/
-make data-sample   # 샘플로 결합 점검 → data/processed/bloom.parquet
-make data          # 실제 배포 데이터(data/raw, data/external) 결합
+make data          # data/raw 의 대회 배포 번들 → data/processed/bloom.parquet
 make train         # 모델 학습 (구현 예정)
 make evaluate      # 평가 지표 산출 (구현 예정)
 

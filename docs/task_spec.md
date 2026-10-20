@@ -72,12 +72,23 @@
 - **기준일 이후 시점의 관측값을 입력으로 사용 금지.**
 - 재현 실행 결과가 제출 파일과 유의하게 다르면 실격.
 
+## 배포 번들 README에서 확인된 추가 사실 ('26. 9. 12.)
+
+- 채수는 평상시 주 1회, 경계 이상 발령 시 주 2회 이상. ±3일 규칙으로 전체 측정의 93.7%가 채점 대상(±0일 79.0%, ±1일 92.5%, ±2일 95.1%, ±3일 99.1%)
+- 채점 대상 조합은 `eval_pairs.csv`에 모두 나열: train 2,310(~'24) / valid 256('25) / test 124('26년 **5~10월**). '26년 5~10월 밖 64건은 excluded
+- 제출: `sample_submission.csv` 행 구성 그대로, 4개 열(station_id, base_date, target_date, pred_cells 정수)
+- 지점 ID: HP 해평, GJGR 강정·고령, CS 칠서, MGMR 물금·매리, DCHN 회남. 모두 상수원 구간
+- `dam_daily.csv`에 저수량 없음 → 체류시간 대리변수는 저수위·유입량·방류량 조합으로 설계
+- 지점↔ASOS 대응은 `stations.csv`의 `asos_stn_id`. 지점↔댐 대응은 README에 없음(참가자 설계)
+- F1@10,000은 **순위 미반영 참고지표**
+- DataON 하천 수위 자료는 재배포 금지 조건 때문에 번들 미포함
+
 ## 저장소에서의 구현 위치
 
 | 규칙 | 구현 |
 |---|---|
-| 정답 = +7일 최근접(±3일) | `src/data_ai/bloom.py` `add_targets()` → `target_cells`, `target_date`, `target_valid` |
-| 분할 ~24/25/26 | `add_split()` → `split` 열 (train/valid/test) |
+| 정답·분할 | `src/data_ai/bloom.py` `add_targets_from_pairs()` — `eval_pairs.csv` 그대로 사용 (`add_targets()`는 대체 경로) |
+| 댐 합산·수위 편차 | `station_dam_features()` + 설정 `station_dams`, `primary_dam` |
 | 지표 | `src/data_ai/evaluate.py` `bloom_metrics()` → rmse_log10, mae_log10, r2, nse, f1_over_threshold |
 | 융합 특징(누적 강우, 체류시간, 이동평균) | `daily_window_features()`, `d_residence_days` |
 | 열 이름 매핑 | `configs/bloom.yaml` (배포 파일 열 이름 확인 후 왼쪽 키만 수정) |

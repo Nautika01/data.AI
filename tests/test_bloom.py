@@ -60,7 +60,7 @@ def test_merge_asof_by_backward_within_tolerance():
 def test_add_targets_picks_nearest_to_plus7_within_3_days():
     df = pd.DataFrame(
         {
-            "site_code": ["s"] * 5,
+            "station_id": ["s"] * 5,
             "date": pd.to_datetime(
                 ["2024-06-03", "2024-06-09", "2024-06-12", "2024-06-24", "2024-07-01"]
             ),
@@ -74,7 +74,7 @@ def test_add_targets_picks_nearest_to_plus7_within_3_days():
     assert not out.loc[1, "target_valid"]
     # 6/24 + 7 = 7/1 → 측정은 있으나 세포수 결측 → 채점 제외
     assert not out.loc[3, "target_valid"]
-    assert out.loc[2, "current_level"] == 2
+    assert out.loc[2, "cyano_cells"] == 15000.0
 
 
 def test_add_split_years():
@@ -91,3 +91,46 @@ def test_bloom_metrics_perfect_and_nse():
     assert m["rmse_log10"] == 0 and m["r2"] == 1 and m["nse"] == 1 and m["f1_over_threshold"] == 1
     m2 = bloom_metrics(y, [np.mean(y)] * 4)
     assert abs(m2["nse"]) < 1e-9  # 평균 예측 → NSE 0
+
+
+def test_add_targets_from_pairs_and_station_dam_features():
+    from data_ai.bloom import add_targets_from_pairs, station_dam_features
+
+    df = pd.DataFrame(
+        {
+            "station_id": ["HP", "HP", "HP"],
+            "date": pd.to_datetime(["2024-06-03", "2024-06-10", "2026-06-01"]),
+            "cyano_cells": [100.0, 5000.0, 20000.0],
+        }
+    )
+    pairs = pd.DataFrame(
+        {
+            "station_id": ["HP", "HP"],
+            "base_date": ["2024-06-03", "2026-06-01"],
+            "target_date": ["2024-06-10", "2026-06-08"],
+            "lag_days": [7, 7],
+            "split": ["train", "test"],
+        }
+    )
+    out = add_targets_from_pairs(df, pairs)
+    assert out.loc[0, "target_cells"] == 5000.0 and out.loc[0, "target_valid"]
+    assert out.loc[1, "split"] == "none" and not out.loc[1, "target_valid"]
+    assert out.loc[2, "is_test"] and np.isnan(out.loc[2, "target_cells"])
+
+    dates = pd.to_datetime(["2024-01-01", "2024-01-02"])
+    feat = pd.DataFrame(
+        {
+            "date": list(dates) * 2,
+            "dam_name": ["A", "A", "B", "B"],
+            "inflow_mean7d": [1.0, 2.0, 10.0, 20.0],
+            "outflow_mean7d": [1.0, 1.0, 5.0, 5.0],
+            "outflow_mean28d": [1.0, 1.0, 5.0, 5.0],
+            "level": [100.0, 101.0, 50.0, 51.0],
+        }
+    )
+    sf = station_dam_features(
+        feat, {"X": ["A", "B"]}, {"X": "A"}, ["inflow", "outflow"], ["level"], 2024
+    )
+    assert sf["inflow_mean7d"].tolist() == [11.0, 22.0]  # 두 댐 합산
+    assert sf["level"].tolist() == [100.0, 101.0]  # 대표 댐 A 수위
+    assert abs(sf["level_anom"].iloc[0] + 0.5) < 1e-9  # 1월 중앙값 100.5 대비

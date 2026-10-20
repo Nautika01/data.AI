@@ -1,80 +1,103 @@
-# 녹조 7일 예측 — 데이터 결합 설정 (공식 과제 정의 2026-10-15 개정판 기준)
-#
-# 배포 데이터의 열 이름이 다르면 아래 mapping의 왼쪽(원본 열 이름)만 고치면 된다.
-# 확정된 열: 정답 = iem_bgalage_cell_co (유해남조류 세포수 합계, cells/mL)
-# 나머지 조류경보제 열 이름은 배포 파일을 열어 확인 후 수정할 것. (현재 값은 샘플 데이터 기준)
+# 녹조 7일 예측 — 대회 배포 번들(생성일 '26. 9. 12.) 결합 설정
+# 번들 파일 8개를 data/raw/ 에 그대로 둔다. 열 이름은 번들 README 기준.
 
-sites_file: sites.csv            # data/external/ 기준. 지점코드 ↔ 지점명 ↔ ASOS 지점 ↔ 댐 매핑표
+bundle_dir: data/raw
+stations_file: stations.csv      # station_id, swmn_code, asos_stn_id 등
+pairs_file: eval_pairs.csv       # 채점 대상 (지점, 기준일, 정답측정일, split) — 정답 규칙은 주최 측이 적용함
+submission_file: sample_submission.csv
 
-algae:                           # 조류경보제 측정자료 (data/raw/)
-  file: algae_alert.csv
+algae:                           # 조류경보제 측정자료
+  file: algae_measure.csv
   mapping:
-    pt_no: site_code             # 조사지점코드 (예: 2022G05 물금·매리)
-    pt_nm: site_name
-    wmcymd: date                 # 측정일
-    iem_bgalage_cell_co: cyano_cells   # ★ 예측 대상
-    iem_temp: water_temp
+    station_id: station_id
+    chck_de: date
+    iem_bgalage_cell_co: cyano_cells     # ★ 예측 대상 (cells/mL)
+    iem_bgalage_microsts: cells_microcystis
+    iem_bgalage_anba: cells_anabaena
+    iem_bgalage_osrtria: cells_oscillatoria
+    iem_bgalage_apzo: cells_aphanizomenon
+    iem_wtrtp: water_temp
     iem_ph: ph
-    iem_tran: transparency
-    iem_turb: turbidity
-    iem_do: do
+    iem_doc: do
+    iem_trp: transparency
+    iem_tur: turbidity
     iem_chla: chl_a
-    iem_mc_lr: mc_lr             # 조류독소 (있을 때만)
+    iem_microstlr: mc_lr               # 결측 84% — 참고용
+    dominant_genus: dominant_genus
+  lags: [1, 2, 3]                      # 이전 측정값 (세포수·수온·클로로필)
+  lag_cols: [cyano_cells, water_temp, chl_a]
 
-weather:                         # 기상청 ASOS 일 자료 (data/external/)
-  file: kma_asos_daily.csv
-  key: asos_id
+weather:                         # ASOS 일자료 (stations.csv 의 asos_stn_id 로 연결)
+  file: asos_daily.csv
+  key: asos_stn_id
   mapping:
-    지점: asos_id
-    일시: date
-    평균기온(°C): temp_mean
-    최고기온(°C): temp_max
-    최저기온(°C): temp_min
-    일강수량(mm): precip
-    평균 풍속(m/s): wind
-    합계 일사량(MJ/m2): solar
-    합계 일조시간(hr): sunshine
-    평균 상대습도(%): humidity
-  windows: [7, 14, 28]           # 기준일 포함 과거 N일 집계
+    stnId: asos_stn_id
+    tm: date
+    avgTa: temp_mean
+    maxTa: temp_max
+    minTa: temp_min
+    sumRn: precip
+    hr1MaxRn: precip_1h_max
+    avgWs: wind
+    maxWs: wind_max
+    avgRhm: humidity
+    sumSsHr: sunshine
+    sumGsr: solar
+    avgTca: cloud
+    avgTs: ground_temp
+  fillna_zero: [precip, precip_1h_max]   # 강수 없음 → NaN 으로 들어오므로 0 처리
+  windows: [7, 14, 28]
   aggs:
     temp_mean: [mean]
-    temp_max: [max]
+    temp_max: [max, mean]
     temp_min: [min]
-    precip: [sum]
+    precip: [sum, max]
     wind: [mean]
-    solar: [mean]
-    sunshine: [sum]
     humidity: [mean]
-  tolerance_days: 3              # 기준일과 기상 자료 날짜가 어긋날 때 허용 범위
+    sunshine: [sum]
+    solar: [mean]
+    cloud: [mean]
+    ground_temp: [mean]
+  tolerance_days: 3
 
-dam:                             # 다목적댐 운영 일 자료 (data/external/)
+dam:                             # 다목적댐 일자료 (WAMIS). 저수량 열이 없어 체류시간은 저수위·유입·방류로 설계
   file: dam_daily.csv
   key: dam_name
   mapping:
-    댐명: dam_name
-    일자: date
-    강우량(mm): dam_rain
-    저수위(EL.m): level
-    저수량(백만m3): storage
-    저수율(%): storage_rate
-    유입량(m3/s): inflow
-    총방류량(m3/s): outflow
+    obs_date: date
+    dam_name: dam_name
+    rwl: level            # 저수위 EL.m
+    iqty: inflow          # 유입량 m3/s
+    tdqty: outflow        # 총방류량 m3/s
+    spdqty: spill         # 여수로 방류량
+    itqty: intake         # 취수량
+    rf: dam_rain          # 강우량 mm
   windows: [7, 14, 28]
   aggs:
-    dam_rain: [sum]
-    level: [mean]
-    storage: [mean]
-    storage_rate: [mean]
     inflow: [mean, sum]
     outflow: [mean, sum]
+    spill: [sum]
+    intake: [mean]
+    dam_rain: [sum]
+    level: [mean]
+  flow_cols: [inflow, outflow, spill, intake, dam_rain]   # 지점 상류 댐 전체 합산
+  level_cols: [level]                                     # 대표 댐 값 + 월별 평년 편차
+  # 지점별 상류 다목적댐 (조정지댐 제외 — 본댐 방류와 중복). 지리 기준 초안이며 README 에 명시된 매핑은 없음.
+  station_dams:
+    HP:   [안동, 임하, 영주, 성덕, 군위]
+    GJGR: [안동, 임하, 영주, 성덕, 군위, 김천부항]
+    CS:   [안동, 임하, 영주, 성덕, 군위, 김천부항, 합천, 남강]
+    MGMR: [안동, 임하, 영주, 성덕, 군위, 김천부항, 합천, 남강, 밀양]
+    DCHN: [용담, 대청]
+  primary_dam: {HP: 안동, GJGR: 안동, CS: 합천, MGMR: 남강, DCHN: 대청}
   tolerance_days: 3
 
-target:
-  horizon_days: 7                # 기준일 + 7일
-  tolerance_days: 3              # ±3일 이내 가장 가까운 측정을 정답으로 인정
+target:                          # pairs_file 이 있으면 그 규칙을 그대로 사용. 없을 때만 아래 규칙으로 계산
+  horizon_days: 7
+  tolerance_days: 3
 
-split:                           # 공식 분할: ~2024 학습 / 2025 검증 / 2026 평가
+split:
   train_max_year: 2024
   valid_year: 2025
 
-output: bloom                    # data/processed/bloom.parquet
+output: bloom

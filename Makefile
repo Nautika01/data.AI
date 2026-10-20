@@ -1,4 +1,4 @@
-.PHONY: setup sample data data-sample train evaluate report lint test clean
+.PHONY: setup data train evaluate report lint test clean
 
 PY ?= python
 
@@ -6,14 +6,8 @@ setup:
 	$(PY) -m pip install -r requirements.txt
 	$(PY) -m pip install -e .
 
-sample:
-	$(PY) scripts/make_sample_data.py
-
 data:
 	$(PY) scripts/make_dataset.py
-
-data-sample:
-	$(PY) scripts/make_dataset.py --sample
 
 train:
 	$(PY) scripts/train.py
