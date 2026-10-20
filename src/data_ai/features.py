@@ -44,11 +44,17 @@ WQ_COLS = [
 STRATEGIES = ("native", "ffill_flag", "site_month_median")
 
 
-def feature_columns(df: pd.DataFrame) -> list[str]:
-    """허용 목록에 있는 열만 입력으로 쓴다. target·split·날짜·식별자는 목록에 없으므로 자동 제외."""
+def feature_columns(df: pd.DataFrame, extra: tuple[str, ...] = ()) -> list[str]:
+    """허용 목록에 있는 열만 입력으로 쓴다. target·split·날짜·식별자는 목록에 없으므로 자동 제외.
+
+    extra: 실험용으로 명시적으로 추가 허용할 열.
+    예) "lag_days" — 제출 양식의 target_date 로 기준일에 알 수 있는 값.
+    """
     cols = []
     for c in df.columns:
-        ok = c in ALLOW_EXACT or c.startswith(ALLOW_PREFIX) or c.endswith(ALLOW_SUFFIX)
+        ok = (
+            c in ALLOW_EXACT or c in extra or c.startswith(ALLOW_PREFIX) or c.endswith(ALLOW_SUFFIX)
+        )
         if ok and (c in CATEGORICAL or pd.api.types.is_numeric_dtype(df[c])):
             cols.append(c)
     forbidden = [c for c in cols if "target" in c or c in ("split", "date", "true_cells")]
