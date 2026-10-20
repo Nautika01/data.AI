@@ -34,9 +34,10 @@ def fit_lgb(
     params: dict | None = None,
     num_rounds: int = 3000,
     early_stopping: int = 150,
+    weight: np.ndarray | None = None,
 ) -> lgb.Booster:
     p = {**DEFAULT_PARAMS, **(params or {})}
-    dtrain = lgb.Dataset(x_train, y_train, free_raw_data=False)
+    dtrain = lgb.Dataset(x_train, y_train, weight=weight, free_raw_data=False)
     if x_valid is not None:
         dvalid = lgb.Dataset(x_valid, y_valid, reference=dtrain, free_raw_data=False)
         return lgb.train(

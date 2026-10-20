@@ -43,6 +43,8 @@ reports/*.csv
 !reports/metrics.csv
 !reports/baseline_valid_2025.csv
 !reports/experiments.csv
+!reports/experiments_round3.csv
+!reports/hpo_round3.csv
 reports/slides/*.jpg
 reports/slides/*.pdf
 
