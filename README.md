@@ -3,7 +3,7 @@
 > **데이터와 AI 기반의 사회·과학 문제 해결로 국내 연구데이터 생태계 저변을 확대**
 
 한국과학기술정보연구원(KISTI)이 주관하는 **2026 DATA·AI 분석 경진대회** 문제해결 부문 참가를 위한 작업 저장소입니다.
-데이터 수집·전처리, 탐색적 분석(EDA), 모델링, 평가, 보고서·발표자료 작성을 하나의 재현 가능한 파이프라인으로 관리합니다.
+데이터 수집·전처리, 탐색적 분석(EDA), 모델링, 평가, 제출물 작성을 하나의 재현 가능한 파이프라인으로 관리합니다.
 
 ## 대회 개요
 
@@ -44,8 +44,6 @@
 |---|---|
 | 방법 설명서 초안 (제출용) | [docs/method_description.md](docs/method_description.md) |
 | 제출 파일 | `reports/submission.csv` (`make train`으로 재생성) |
-| 발표 슬라이드 뼈대 (12장, pptx) | `reports/slides/bloom_deck.pptx` (`build_deck.js`로 재생성) |
-| 발표 예상 질문 20개 | [docs/presentation_qa.md](docs/presentation_qa.md) |
 | 모델링 기록·실험 표 | [docs/modeling_notes.md](docs/modeling_notes.md), `reports/metrics.csv`, `reports/experiments.csv` |
 | 초보자용 코드 가이드 | `notebooks/00_code_guide.ipynb` |
 | EDA | `notebooks/01_eda_bloom.ipynb` |
@@ -72,7 +70,7 @@
 │   └── utils.py         # 로깅·시드 고정 등
 ├── configs/bloom.yaml   # 열 이름 매핑, 집계 창, 정답·분할 규칙
 ├── scripts/             # make_dataset, train, evaluate, score_submission, experiments, fetch_data_go_kr
-├── reports/             # 보고서·발표자료·그림
+├── reports/             # 제출 파일·지표·그림
 ├── docs/                # 대회 안내, 과제 후보, 해결안 양식
 ├── tests/               # 단위 테스트
 ├── requirements.txt
@@ -124,7 +122,7 @@ jupyter lab        # notebooks/01_eda_bloom.ipynb 부터
 - [ ] 중간 점검 (10-30)
 - [ ] 보고서·재현 코드·그림 완성 (~11-03)
 - [ ] 교차 리뷰 후 **11-05 제출** (마감 11-06)
-- [ ] 발표자료·리허설 (**11-25 발표평가**)
+- [ ] (서류 평가 통과 시) 발표 준비 — 11-25 발표평가
 
 ## 참고 자료
 
