@@ -1,0 +1,53 @@
+# WAMIS 하천 수위(wl)·유량(fw) 일자료 수집 대상.
+# scripts/fetch_wamis.py 가 읽는다. obscd 를 비우면 WAMIS 관측소 목록에서 이름으로 찾는다.
+# 이름 비교는 공백·괄호를 제거하고 '하류→하', '상류→상' 으로 바꿔서 한다.
+
+basin: "2"            # WAMIS 대권역 코드: 2 = 낙동강
+start: "2016-01-01"   # 기본 수집 시작일 (CLI --start 로 변경 가능)
+
+stations:
+  # ── 해평(HP) ───────────────────────────────────────────────
+  - name: 구미대교
+    kinds: [fw, wl]
+    bloom_sites: [HP]
+    obscd: {fw: "", wl: ""}
+  - name: 구미보하
+    kinds: [wl]
+    bloom_sites: [HP]
+    obscd: {wl: ""}
+  - name: 칠곡보상
+    kinds: [wl]
+    bloom_sites: [HP, GJGR]
+    obscd: {wl: ""}
+    note: "수위 0 값은 결측·오류로 보고 제외하고 쓴다"
+
+  # ── 강정·고령(GJGR) ────────────────────────────────────────
+  - name: 성주대교
+    kinds: [fw, wl]
+    bloom_sites: [GJGR]
+    obscd: {fw: "", wl: ""}
+  - name: 강정고령보하
+    kinds: [wl]
+    bloom_sites: [GJGR]
+    obscd: {wl: ""}
+
+  # ── 칠서(CS) ───────────────────────────────────────────────
+  - name: 적포교
+    kinds: [fw]
+    bloom_sites: [CS]
+    obscd: {fw: ""}
+  - name: 창녕함안보상
+    kinds: [wl]
+    bloom_sites: [CS]
+    obscd: {wl: ""}
+
+  # ── 물금·매리(MGMR) ────────────────────────────────────────
+  - name: 삼랑진교
+    kinds: [fw, wl]
+    bloom_sites: [MGMR]
+    obscd: {fw: "", wl: ""}
+  - name: 호포대교
+    kinds: [fw]
+    bloom_sites: [MGMR]
+    obscd: {fw: ""}
+    note: "하구(낙동강하굿둑) 영향으로 유량이 작게 나옴. 물금·매리 유량은 삼랑진교를 쓴다"
