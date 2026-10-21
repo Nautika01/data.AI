@@ -97,10 +97,11 @@ def main() -> None:
             "n_features": len(cols),
         }
         log.info(
-            "전략 %-18s rmse_log10 %.4f  R² %.3f  NSE %.3f  F1 %.3f  (iter %d)",
+            "전략 %-18s rmse_log10 %.4f  R² %.3f  r²(pearson) %.3f  NSE %.3f  F1 %.3f  (iter %d)",
             strategy,
             overall["rmse_log10"],
             overall["r2"],
+            overall["r2_pearson"],
             overall["nse"],
             overall["f1_over_threshold"],
             model.best_iteration,
@@ -123,10 +124,11 @@ def main() -> None:
                 r["strategy"] = strategy
             results += rows
             log.info(
-                "롤링 %d: rmse_log10 %.4f  R² %.3f  NSE %.3f  (n=%d)",
+                "롤링 %d: rmse_log10 %.4f  R² %.3f  r²(pearson) %.3f  NSE %.3f  (n=%d)",
                 y,
                 rows[0]["rmse_log10"],
                 rows[0]["r2"],
+                rows[0]["r2_pearson"],
                 rows[0]["nse"],
                 rows[0]["n"],
             )

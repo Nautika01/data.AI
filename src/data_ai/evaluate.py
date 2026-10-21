@@ -48,8 +48,21 @@ def nse(y_true, y_pred) -> float:
     return float(1 - np.sum((y_true - y_pred) ** 2) / denom)
 
 
+def pearson_r2(y_true, y_pred) -> float:
+    """관측·예측 피어슨 상관계수의 제곱. 분산이 0이면 nan."""
+    y_true = np.asarray(y_true, dtype=float)
+    y_pred = np.asarray(y_pred, dtype=float)
+    if len(y_true) < 2 or y_true.std() == 0 or y_pred.std() == 0:
+        return float("nan")
+    return float(np.corrcoef(y_true, y_pred)[0, 1] ** 2)
+
+
 def bloom_metrics(cells_true, cells_pred, threshold: float = 10_000) -> dict[str, float]:
-    """공식 평가 지표: log10(세포수+1) RMSE·MAE, 원 단위 R²·NSE, 보조 F1(threshold 초과 여부)."""
+    """공식 평가 지표: log10(세포수+1) RMSE·MAE, 원 단위 R²·NSE, 보조 F1(threshold 초과 여부).
+
+    r2 는 결정계수(1−SSE/SST, NSE 와 동일식), r2_pearson 은 관측·예측 상관계수의 제곱.
+    대회 R² 정의가 확정되기 전까지 두 값을 함께 기록한다.
+    """
     y = np.asarray(cells_true, dtype=float)
     p = np.clip(np.asarray(cells_pred, dtype=float), 0, None)
     mask = ~np.isnan(y) & ~np.isnan(p)
@@ -60,6 +73,7 @@ def bloom_metrics(cells_true, cells_pred, threshold: float = 10_000) -> dict[str
         "rmse_log10": float(np.sqrt(np.mean((ly - lp) ** 2))),
         "mae_log10": float(np.mean(np.abs(ly - lp))),
         "r2": float(metrics.r2_score(y, p)) if len(y) > 1 else float("nan"),
+        "r2_pearson": pearson_r2(y, p),
         "nse": nse(y, p),
     }
     if (y >= threshold).any():

@@ -69,7 +69,7 @@
 │   ├── viz.py           # 그림 스타일·팔레트·한글 폰트
 │   └── utils.py         # 로깅·시드 고정 등
 ├── configs/bloom.yaml   # 열 이름 매핑, 집계 창, 정답·분할 규칙
-├── scripts/             # make_dataset, train, evaluate, score_submission, experiments, fetch_data_go_kr
+├── scripts/             # make_dataset, train, evaluate, score_submission, experiments, fetch_data_go_kr, fetch_wamis
 ├── reports/             # 제출 파일·지표·그림
 ├── docs/                # 대회 안내, 과제 후보, 해결안 양식
 ├── tests/               # 단위 테스트

@@ -16,13 +16,22 @@ def main() -> None:
     print("## 결측 전략 비교 (검증 2025, 전체)")
     print(
         m[(m["subset"] == "all") & m["set"].str.startswith("valid2025")][
-            ["strategy", "n", "rmse_log10", "mae_log10", "r2", "nse", "f1_over_threshold"]
+            [
+                "strategy",
+                "n",
+                "rmse_log10",
+                "mae_log10",
+                "r2",
+                "r2_pearson",
+                "nse",
+                "f1_over_threshold",
+            ]
         ].to_string(index=False)
     )
     print("\n## 롤링 검증 (선택 전략)")
     print(
         m[m["set"].str.startswith("rolling") & (m["subset"].isin(["all", "may_oct"]))][
-            ["set", "subset", "n", "rmse_log10", "r2", "nse", "f1_over_threshold"]
+            ["set", "subset", "n", "rmse_log10", "r2", "r2_pearson", "nse", "f1_over_threshold"]
         ].to_string(index=False)
     )
     pv = pd.read_csv(REPORTS_DIR / "pred_valid_2025.csv")

@@ -134,3 +134,49 @@ def test_add_targets_from_pairs_and_station_dam_features():
     assert sf["inflow_mean7d"].tolist() == [11.0, 22.0]  # 두 댐 합산
     assert sf["level"].tolist() == [100.0, 101.0]  # 대표 댐 A 수위
     assert abs(sf["level_anom"].iloc[0] + 0.5) < 1e-9  # 1월 중앙값 100.5 대비
+
+
+def test_river_features_builds_flow_and_stage_columns():
+    from data_ai.bloom import river_features
+
+    dates = pd.date_range("2024-01-01", periods=40, freq="D")
+    daily = pd.concat(
+        [
+            pd.DataFrame(
+                {
+                    "date": dates,
+                    "kind": "fw",
+                    "station": "구미대교",
+                    "value": np.arange(1, 41) * 10.0,
+                }
+            ),
+            pd.DataFrame(
+                {
+                    "date": dates,
+                    "kind": "wl",
+                    "station": "구미보하",
+                    "value": np.arange(1, 41) * 0.1,
+                }
+            ),
+            # 0 값은 결측으로 봐야 하는 관측소
+            pd.DataFrame({"date": dates, "kind": "wl", "station": "칠곡보상", "value": 0.0}),
+        ]
+    )
+    feat = river_features(
+        daily,
+        {"HP": {"fw": "구미대교", "wl": "구미보하"}, "GJGR": {"wl": "칠곡보상"}, "CS": {}},
+        windows=[7, 28],
+        zero_as_missing=["칠곡보상"],
+    )
+    hp = feat[feat["station_id"] == "HP"].set_index("date")
+    row = hp.loc["2024-02-09"]  # 40일째
+    assert row["flow"] == 400.0
+    assert row["flow_mean7d"] == np.mean(np.arange(34, 41) * 10.0)
+    assert abs(row["log_flow_mean7d"] - np.log10(row["flow_mean7d"] + 1)) < 1e-9
+    assert row["flow_rel28d"] == row["flow_mean7d"] / (row["flow_mean28d"] + 1.0)
+    assert abs(row["stage_diff7d"] - 0.7) < 1e-9  # 4.0 − 3.3
+    assert np.isnan(hp.loc["2024-01-05", "stage_diff7d"])  # 7일 전 자료 없음
+    # 칠곡보상 0 값은 결측 처리 → GJGR 수위 전부 NaN
+    gj = feat[feat["station_id"] == "GJGR"]
+    assert gj["stage"].isna().all() and "flow" not in gj.columns or gj["flow"].isna().all()
+    assert "CS" not in set(feat["station_id"])  # 매핑 없는 지점은 행 없음
