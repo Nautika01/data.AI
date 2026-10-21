@@ -217,6 +217,61 @@ def station_dam_features(
 
 
 # ---------------------------------------------------------------------------
+# 하천: WAMIS 수위·유량 (scripts/fetch_wamis.py 산출물, 선택)
+# ---------------------------------------------------------------------------
+RIVER_KIND_COL = {"fw": "flow", "wl": "stage"}
+
+
+def river_features(
+    daily: pd.DataFrame,
+    station_map: dict[str, dict[str, str]],
+    windows: Iterable[int] = (7, 28),
+    zero_as_missing: Iterable[str] = (),
+    date_col: str = "date",
+) -> pd.DataFrame:
+    """WAMIS 하천 일자료(long: date, kind, station, value) → 지점별 유량·수위 피처.
+
+    - flow(유량 m³/s): 당일, N일 평균, log10(7일 평균+1), 7일/28일 평균 비
+    - stage(수위 m):   당일, N일 평균, 7일 변화량(당일 − 7일 전)
+    station_map: {station_id: {"fw": 유량 관측소명, "wl": 수위 관측소명}}
+    zero_as_missing 에 든 관측소의 0 값은 결측으로 본다(보 수위 0 = 기록 오류).
+    모든 집계는 당일 포함 과거 자료만 쓴다.
+    """
+    d = daily.copy()
+    d[date_col] = pd.to_datetime(d[date_col]).dt.normalize()
+    d["value"] = pd.to_numeric(d["value"], errors="coerce")
+    d.loc[d["station"].isin(list(zero_as_missing)) & (d["value"] == 0), "value"] = np.nan
+
+    frames = []
+    for sid, m in station_map.items():
+        parts = []
+        for kind, name in (m or {}).items():
+            col = RIVER_KIND_COL.get(kind)
+            sub = d[(d["kind"] == kind) & (d["station"] == name)]
+            if col is None or sub.empty:
+                log.warning("지점 %s: 하천 자료 없음 (%s %s)", sid, kind, name)
+                continue
+            parts.append(sub.groupby(date_col)["value"].mean().rename(col))
+        if parts:
+            frame = pd.concat(parts, axis=1)
+            frame[SITE_KEY] = sid
+            frames.append(frame.reset_index())
+    if not frames:
+        return pd.DataFrame(columns=[SITE_KEY, date_col])
+
+    wide = pd.concat(frames, ignore_index=True)
+    aggs = {c: ["mean"] for c in RIVER_KIND_COL.values() if c in wide.columns}
+    feat = daily_window_features(wide, SITE_KEY, aggs, windows).sort_values([SITE_KEY, date_col])
+    if "flow_mean7d" in feat.columns:
+        feat["log_flow_mean7d"] = np.log10(feat["flow_mean7d"].clip(lower=0) + 1)
+    if {"flow_mean7d", "flow_mean28d"} <= set(feat.columns):
+        feat["flow_rel28d"] = feat["flow_mean7d"] / (feat["flow_mean28d"] + 1.0)
+    if "stage" in feat.columns:  # 날짜가 빠짐없이 채워져 있어 shift(7) = 7일 전
+        feat["stage_diff7d"] = feat["stage"] - feat.groupby(SITE_KEY)["stage"].shift(7)
+    return feat.reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------
 # 정답·분할
 # ---------------------------------------------------------------------------
 def add_lag_features(
@@ -377,6 +432,32 @@ def build_dataset(cfg: dict, bundle_dir: Path | None = None) -> pd.DataFrame:
     )
     merged = merge_asof_by(merged, sfeat, SITE_KEY, d_cfg["tolerance_days"])
     log.info("댐 결합: 결측 %.1f%%", merged["d_outflow_mean7d"].isna().mean() * 100)
+
+    # 4b. 하천 수위·유량 — WAMIS 수집 결과(data/external/wamis_daily.csv)가 있을 때만
+    r_cfg = cfg.get("river")
+    if r_cfg:
+        river_path = Path(r_cfg["file"])
+        if not river_path.is_absolute():
+            river_path = PROJECT_ROOT / river_path
+        if river_path.exists():
+            rfeat = river_features(
+                read_csv_any(river_path),
+                r_cfg["station_map"],
+                r_cfg.get("windows", (7, 28)),
+                r_cfg.get("zero_as_missing", ()),
+            )
+            rfeat = rfeat.rename(
+                columns={c: f"r_{c}" for c in rfeat.columns if c not in (SITE_KEY, "date")}
+            )
+            merged = merge_asof_by(merged, rfeat, SITE_KEY, r_cfg.get("tolerance_days", 3))
+            r_cols = [c for c in merged.columns if c.startswith("r_")]
+            log.info(
+                "하천 결합: %d열, 결측 %.1f%% (매핑 지점 외 포함)",
+                len(r_cols),
+                merged[r_cols].isna().all(axis=1).mean() * 100 if r_cols else 100.0,
+            )
+        else:
+            log.info("하천 자료 없음(%s) → 건너뜀. scripts/fetch_wamis.py 로 수집", river_path)
 
     # 5. 정답·분할
     pairs_path = bundle_dir / cfg.get("pairs_file", "")

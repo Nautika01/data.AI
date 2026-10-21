@@ -10,6 +10,7 @@
 | 조류경보제 | `algae_measure.csv` 열 이름을 표준 이름으로 매핑(수온 `iem_wtrtp`→`water_temp` 등). 세포수·수온·클로로필의 이전 1~3회 측정값(lag)과 측정 간격 추가 |
 | 기상 | `stations.csv`의 `asos_stn_id`로 지점↔ASOS 연결. 강수 결측(NaN)은 0으로. 기준일 포함 과거 7·14·28일 집계(`w_` 접두) |
 | 댐 | 지점별 **상류 다목적댐 목록**(설정 `station_dams`)의 유입·방류·여수로·취수·강우를 합산, 대표 댐(`primary_dam`) 저수위와 월별 평년 편차(`d_level_anom`, 평년은 ≤2024만 사용). 체류시간 대리변수 `d_flow_ratio7d`, `d_outflow_rel28d` |
+| 하천(선택) | `data/external/wamis_daily.csv`(`scripts/fetch_wamis.py` 산출물)가 있으면 지점별 유량·수위 관측소(`river.station_map`)를 붙여 `r_` 피처 생성: 당일·7·28일 평균, `r_log_flow_mean7d`, `r_flow_rel28d`(7일/28일 유량 비), `r_stage_diff7d`(수위 7일 변화). 칠곡보상 수위 0은 결측 처리. 파일이 없으면 건너뜀 |
 | 정답 | `eval_pairs.csv`의 (지점, 기준일, 정답측정일, split)을 그대로 사용. test 정답은 비움 |
 
 지점별 상류 댐(README에 매핑이 없어 수계 지리로 검증, 근거는 `configs/bloom.yaml` 주석):
@@ -37,5 +38,6 @@
 
 - `dam_operation_api.csv`: '26-06-10 이후 저수량·저수율·전년 비교. 평가 구간 보조 피처 후보(학습 구간엔 없음 → 주 입력 불가)
 - DataON 「댐유역 하천 일평균수위」: 2024년까지. 재배포 금지, 저장소 미포함. **검증 결과 효과 없음**(`modeling_notes.md`) — 관측소가 모두 댐 유역이라 댐 일자료와 중복
+- WAMIS 하천 수위·유량(낙동강 본류 12계열, 2016~): `scripts/fetch_wamis.py` → `data/external/wamis_daily.csv`(git 제외) + `reports/wamis_qc.csv`. 관측소·지점 연결은 `configs/wamis_stations.yaml`, 결합 설정은 `configs/bloom.yaml` `river`. 2026-10-21 기준 **실제 수집·검증 전**(스크립트만 준비)
 - 벤치마크: 물모아플랫폼 AI 녹조 정밀 예측정보('26-05-04~, 13개소)
 - 원천 API(보강·검증용): 조류경보제 조회서비스 15126738, 다목적댐 운영정보 15099049, ASOS 15059093 — `scripts/fetch_data_go_kr.py`

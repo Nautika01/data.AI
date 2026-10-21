@@ -23,7 +23,7 @@ ALLOW_EXACT = {
     "month",
     "doy",
 }
-ALLOW_PREFIX = ("w_", "d_", "cells_")  # 기상·댐 집계, 속별 세포수·비율
+ALLOW_PREFIX = ("w_", "d_", "r_", "cells_")  # 기상·댐·하천 집계, 속별 세포수·비율
 ALLOW_SUFFIX = ("_lag1", "_lag2", "_lag3", "_isna")
 CATEGORICAL = ["station_id", "dominant_genus"]
 # 결측 대체 대상(수질 항목). 기상·댐 집계는 결측이 거의 없어 그대로 둔다.
