@@ -36,6 +36,7 @@
 
 ## 3. 보조·외부 자료
 
+- 다목적댐 운영자료 2010~2026(저수량 포함, 팀 수집): **검증 결과 효과 없음**(`modeling_notes.md`). 저장소 미포함
 - `dam_operation_api.csv`: '26-06-10 이후 저수량·저수율·전년 비교. 평가 구간 보조 피처 후보(학습 구간엔 없음 → 주 입력 불가)
 - DataON 「댐유역 하천 일평균수위」: 2024년까지. 재배포 금지, 저장소 미포함. **검증 결과 효과 없음**(`modeling_notes.md`) — 관측소가 모두 댐 유역이라 댐 일자료와 중복
 - WAMIS 하천 수위·유량(낙동강 본류 12계열, 2016~): `scripts/fetch_wamis.py` → `data/external/wamis_daily.csv`(git 제외) + `reports/wamis_qc.csv`. 관측소·지점 연결은 `configs/wamis_stations.yaml`, 결합 설정은 `configs/bloom.yaml` `river`. 2026-10-21 기준 **실제 수집·검증 전**(스크립트만 준비)
