@@ -83,6 +83,7 @@ def test_fetch_daily_uses_mocked_api(monkeypatch):
 
     monkeypatch.setattr(mod, "get_json", fake_get_json)
     monkeypatch.setattr(mod.time, "sleep", lambda *_: None)
+    mod._DAILY_PATH.clear()
     df = mod.fetch_daily("fw", "X", date(2024, 1, 1), date(2025, 12, 31))
     assert [c[0] for c in calls] == ["flw_dtdata", "flw_dtdata"]
     assert calls[0][1:] == ("20240101", "20241231")
@@ -121,3 +122,17 @@ def test_default_config_loads_and_has_12_series():
     n = sum(len(st["kinds"]) for st in cfg["stations"])
     assert n == 12
     assert {st["name"] for st in cfg["stations"]} >= {"구미대교", "삼랑진교", "창녕함안보상"}
+
+
+def test_fetch_daily_falls_back_to_next_candidate_path(monkeypatch):
+    def fake_get_json(path, params, base_url=mod.BASE_URL, retries=3):
+        if path == "flw_dtdata":
+            return {"result": {"code": "failure", "msg": "경로가 올바르지 않습니다!"}}
+        return {"list": [{"ymd": params["startdt"], "fw": "3.3"}]}
+
+    monkeypatch.setattr(mod, "get_json", fake_get_json)
+    monkeypatch.setattr(mod.time, "sleep", lambda *_: None)
+    mod._DAILY_PATH.clear()
+    df = mod.fetch_daily("fw", "X", date(2024, 1, 1), date(2024, 12, 31))
+    assert mod._DAILY_PATH["fw"] == "flw_dtdataif"
+    assert df["value"].tolist() == [3.3]
