@@ -72,14 +72,24 @@ def get_json(path: str, params: dict, base_url: str = BASE_URL, retries: int = 3
 
 
 def extract_list(payload: dict | list) -> list[dict]:
-    """응답에서 레코드 리스트를 찾는다. {'list': [...]} 가 기본, 키가 달라도 첫 리스트를 쓴다."""
+    """응답에서 레코드 리스트를 찾는다.
+
+    {'list': [...]} 가 기본, 키가 달라도(중첩 포함) 첫 리스트를 쓴다.
+    """
     if isinstance(payload, list):
         return payload
+    if not isinstance(payload, dict):
+        return []
     if "list" in payload and isinstance(payload["list"], list):
         return payload["list"]
     for v in payload.values():
         if isinstance(v, list) and (not v or isinstance(v[0], dict)):
             return v
+    for v in payload.values():  # 한 단계 더 들어가 본다 ({"result": {"list": [...]}} 등)
+        if isinstance(v, dict):
+            found = extract_list(v)
+            if found:
+                return found
     return []
 
 
@@ -115,7 +125,12 @@ def list_stations(kind: str, basin: str, base_url: str = BASE_URL) -> pd.DataFra
     rows = extract_list(get_json(path, {"basin": basin}, base_url))
     df = pd.DataFrame(rows)
     if df.empty or not {"obscd", "obsnm"} <= set(df.columns):
-        raise RuntimeError(f"{path} 응답에 obscd/obsnm 이 없습니다: {rows[:2]}")
+        print(
+            f"  [경고] {path} 관측소 목록이 비어 있거나 obscd/obsnm 열이 없습니다 "
+            f"(응답 앞부분: {str(rows)[:200]}). configs/wamis_stations.yaml 의 obscd 를 "
+            f"직접 적거나 --probe {kind} 로 응답을 확인하세요."
+        )
+        return pd.DataFrame(columns=["obscd", "obsnm"])
     df["obscd"] = df["obscd"].astype(str).str.strip()
     df["obsnm"] = df["obsnm"].astype(str).str.strip()
     return df
@@ -210,6 +225,39 @@ def qc_report(daily: pd.DataFrame, start: date, end: date) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+# ─────────────────────────────── probe ──────────────────────────────
+PROBE_PATHS = {
+    "fw": ["flw_dubobs", "flw_dubfobs", "flw_dubwlobs", "flw_obsif", "flw_dubobsif"],
+    "wl": ["wl_dubwlobs", "wl_dubobs"],
+}
+PROBE_PARAMS = [{"basin": "2"}, {"basin": "2", "oper": "y"}, {}, {"bbsnnm": "낙동강"}]
+
+
+def probe(kind: str, base_url: str, key: str = "") -> None:
+    """후보 주소·변수 조합을 하나씩 호출해 상태와 응답 앞부분을 그대로 출력한다 (원인 진단용)."""
+    import json
+
+    print(f"== {KIND_LABEL[kind]} 관측소 목록 진단 (base {base_url}) ==")
+    for path in PROBE_PATHS[kind]:
+        for params in PROBE_PARAMS:
+            q = {**params, "output": "json"}
+            if key:
+                q["key"] = key
+            url = f"{base_url.rstrip('/')}/{path}"
+            try:
+                r = requests.get(url, params=q, timeout=30)
+                body = r.text.strip().replace("\n", " ")
+                n = 0
+                try:
+                    n = len(extract_list(json.loads(body)))
+                except Exception:
+                    pass
+                print(f"[{r.status_code}] {path} {params} → 레코드 {n}개 | {body[:300]}")
+            except Exception as e:  # noqa: BLE001 - 진단 출력용
+                print(f"[ERR] {path} {params} → {e}")
+    print("\n위 출력에서 '레코드 N개'가 0보다 큰 줄의 path·params 를 알려 주세요.")
+
+
 # ─────────────────────────────── main ───────────────────────────────
 def load_config(path: Path) -> dict:
     cfg = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -235,7 +283,19 @@ def main() -> None:
     ap.add_argument("--base-url", default=BASE_URL)
     ap.add_argument("--sleep", type=float, default=0.3, help="요청 사이 대기(초)")
     ap.add_argument("--list-stations", choices=list(ENDPOINTS), help="관측소 목록만 출력하고 종료")
+    ap.add_argument(
+        "--probe", choices=list(ENDPOINTS), help="후보 주소·변수로 호출해 원본 응답을 출력(진단)"
+    )
+    ap.add_argument(
+        "--key", default="", help="WAMIS 인증키 (필요한 경우만; 환경변수 WAMIS_KEY 도 가능)"
+    )
     args = ap.parse_args()
+    import os
+
+    key = args.key or os.getenv("WAMIS_KEY", "")
+    if args.probe:
+        probe(args.probe, args.base_url, key)
+        return
 
     cfg = load_config(args.config)
     basin = str(cfg.get("basin", "2"))
@@ -250,13 +310,32 @@ def main() -> None:
     end = date.fromisoformat(args.end) if args.end else date.today()
     print(f"기간 {start} ~ {end}, 설정 {args.config.relative_to(ROOT)}")
 
-    # 1) 관측소 목록 → 코드 확정
-    catalog = {k: list_stations(k, basin, args.base_url) for k in ENDPOINTS}
+    # 1) 관측소 목록 → 코드 확정 (목록은 코드가 비어 있는 항목이 있는 kind 만 조회)
+    need = {
+        kind
+        for st in cfg["stations"]
+        for kind in st["kinds"]
+        if not str(st["obscd"].get(kind) or "").strip()
+    }
+    catalog = {
+        k: (
+            list_stations(k, basin, args.base_url)
+            if k in need
+            else pd.DataFrame(columns=["obscd", "obsnm"])
+        )
+        for k in ENDPOINTS
+    }
     jobs: list[dict] = []
     for st in cfg["stations"]:
         for kind in st["kinds"]:
             code = str(st["obscd"].get(kind) or "").strip()
             if not code:
+                if catalog[kind].empty:
+                    sys.exit(
+                        f"{st['name']}({kind}): 관측소 목록을 받지 못해 코드를 정할 수 없습니다. "
+                        f"`python scripts/fetch_wamis.py --probe {kind}` 결과를 공유하거나 "
+                        "configs/wamis_stations.yaml 의 obscd 에 코드를 직접 적어 주세요."
+                    )
                 code = resolve_code(st["name"], catalog[kind])
             match = catalog[kind].loc[catalog[kind]["obscd"] == code, "obsnm"]
             obsnm = match.iloc[0] if len(match) else st["name"]
