@@ -35,9 +35,16 @@ import yaml
 BASE_URL = "http://www.wamis.go.kr:8080/wamis/openapi/wkw"
 ENDPOINTS = {
     #  kind: (관측소 목록, 일자료, 값 필드)
+    #  2026-10-22 팀원 PC 진단으로 확인: 유량 목록은 flw_dubobsif
     "wl": ("wl_dubwlobs", "wl_dtdata", "wl"),
-    "fw": ("flw_dubobs", "flw_dtdata", "fw"),
+    "fw": ("flw_dubobsif", "flw_dtdata", "fw"),
 }
+# 일자료 주소가 다를 수 있어 후보를 순서대로 시도하고, 처음 성공한 주소를 기억한다.
+DAILY_CANDIDATES = {
+    "wl": ["wl_dtdata", "wl_dtdataif", "wl_dtdata_if"],
+    "fw": ["flw_dtdata", "flw_dtdataif", "flw_dtdata_if", "flw_dtobsdata"],
+}
+_DAILY_PATH: dict[str, str] = {}
 KIND_LABEL = {"wl": "수위(m)", "fw": "유량(m³/s)"}
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = ROOT / "configs" / "wamis_stations.yaml"
@@ -171,16 +178,31 @@ def parse_daily(rows: list[dict], value_key: str) -> pd.DataFrame:
 def fetch_daily(
     kind: str, obscd: str, start: date, end: date, base_url: str = BASE_URL, sleep: float = 0.3
 ) -> pd.DataFrame:
-    _, path, value_key = ENDPOINTS[kind]
+    _, default_path, value_key = ENDPOINTS[kind]
     parts = []
     for a, b in year_ranges(start, end):
-        rows = extract_list(
-            get_json(
-                path,
-                {"obscd": obscd, "startdt": a.strftime("%Y%m%d"), "enddt": b.strftime("%Y%m%d")},
-                base_url,
-            )
-        )
+        params = {"obscd": obscd, "startdt": a.strftime("%Y%m%d"), "enddt": b.strftime("%Y%m%d")}
+        if kind in _DAILY_PATH:
+            rows = extract_list(get_json(_DAILY_PATH[kind], params, base_url))
+        else:  # 첫 호출: 후보 주소를 순서대로 시도해 성공(레코드 있음) 한 주소를 기억
+            rows = []
+            for cand in [default_path] + [c for c in DAILY_CANDIDATES[kind] if c != default_path]:
+                payload = get_json(cand, params, base_url)
+                rows = extract_list(payload)
+                failed = (
+                    isinstance(payload, dict)
+                    and str(payload.get("result", {}).get("code", "")).lower() == "failure"
+                )
+                if rows and not failed:
+                    _DAILY_PATH[kind] = cand
+                    print(f"  일자료 주소 확인: {kind} → {cand}")
+                    break
+                time.sleep(sleep)
+            if kind not in _DAILY_PATH:
+                raise RuntimeError(
+                    f"{KIND_LABEL[kind]} 일자료 주소를 찾지 못했습니다 "
+                    f"(시도: {DAILY_CANDIDATES[kind]}). 마지막 응답: {str(payload)[:200]}"
+                )
         parts.append(parse_daily(rows, value_key))
         time.sleep(sleep)
     df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=["date", "value"])
@@ -227,8 +249,8 @@ def qc_report(daily: pd.DataFrame, start: date, end: date) -> pd.DataFrame:
 
 # ─────────────────────────────── probe ──────────────────────────────
 PROBE_PATHS = {
-    "fw": ["flw_dubobs", "flw_dubfobs", "flw_dubwlobs", "flw_obsif", "flw_dubobsif"],
-    "wl": ["wl_dubwlobs", "wl_dubobs"],
+    "fw": ["flw_dubobsif", "flw_dubobs", "flw_dubfobs"],
+    "wl": ["wl_dubwlobs", "wl_dubwlobsif"],
 }
 PROBE_PARAMS = [{"basin": "2"}, {"basin": "2", "oper": "y"}, {}, {"bbsnnm": "낙동강"}]
 
@@ -281,7 +303,9 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     ap.add_argument("--qc", type=Path, default=DEFAULT_QC)
     ap.add_argument("--base-url", default=BASE_URL)
-    ap.add_argument("--sleep", type=float, default=0.3, help="요청 사이 대기(초)")
+    ap.add_argument(
+        "--sleep", type=float, default=0.6, help="요청 사이 대기(초). 연결 끊김이 잦으면 늘린다"
+    )
     ap.add_argument("--list-stations", choices=list(ENDPOINTS), help="관측소 목록만 출력하고 종료")
     ap.add_argument(
         "--probe", choices=list(ENDPOINTS), help="후보 주소·변수로 호출해 원본 응답을 출력(진단)"
