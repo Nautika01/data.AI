@@ -47,6 +47,7 @@ reports/*.csv
 !reports/experiments.csv
 !reports/experiments_round3.csv
 !reports/hpo_round3.csv
+!reports/experiments_round4.csv
 !reports/wamis_qc.csv
 reports/slides/*.jpg
 reports/slides/*.pdf

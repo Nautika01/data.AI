@@ -44,7 +44,7 @@
 |---|---|
 | 방법 설명서 초안 (제출용) | [docs/method_description.md](docs/method_description.md) |
 | 제출 파일 | `reports/submission.csv` (`make train`으로 재생성) |
-| 모델링 기록·실험 표 | [docs/modeling_notes.md](docs/modeling_notes.md), `reports/metrics.csv`, `reports/experiments.csv` |
+| 모델링 기록·실험 표 | [docs/modeling_notes.md](docs/modeling_notes.md), `reports/metrics.csv`, `reports/experiments*.csv` |
 | 초보자용 코드 가이드 | `notebooks/00_code_guide.ipynb` |
 | EDA | `notebooks/01_eda_bloom.ipynb` |
 | 문제해결 제안서 초안 | [docs/proposal_submission.md](docs/proposal_submission.md) |

@@ -271,6 +271,55 @@ def river_features(
     return feat.reset_index(drop=True)
 
 
+def upstream_features(
+    df: pd.DataFrame,
+    chain: dict[str, str],
+    basins: dict[str, list[str]],
+    tolerance_days: int = 14,
+    date_col: str = "date",
+) -> pd.DataFrame:
+    """다른 경보지점의 기준일 이전 최근 세포수를 피처로 붙인다.
+
+    같은 수계 안에서 녹조가 상류 → 하류로 전파되는 정보.
+    - cells_upstream:   chain[지점] = 바로 상류 지점.
+                        그 지점의 기준일 이전(포함) 최근 log10(세포수+1)
+    - cells_basin_mean: 같은 수계(basins) 안 다른 지점들의 기준일 이전 최근
+                        log10(세포수+1) 평균
+    모두 merge_asof(backward) 이므로 기준일 이후 측정값은 쓰지 않는다.
+    tolerance_days 를 넘으면 결측.
+    """
+    tol = pd.Timedelta(days=tolerance_days)
+    d = df.sort_values(date_col).copy()
+    obs = d.loc[d["cyano_cells"].notna(), [SITE_KEY, date_col, "cyano_cells"]].copy()
+    obs["_lc"] = np.log10(obs["cyano_cells"].clip(lower=0) + 1)
+    obs = obs.sort_values(date_col)
+
+    def latest(site: str, name: str) -> pd.DataFrame:
+        o = obs.loc[obs[SITE_KEY] == site, [date_col, "_lc"]].rename(columns={"_lc": name})
+        return pd.merge_asof(d[[date_col]], o, on=date_col, direction="backward", tolerance=tol)[
+            name
+        ]
+
+    sites = sorted({s for b in basins.values() for s in b} | set(chain.values()))
+    cache = {s: latest(s, f"_c_{s}").to_numpy() for s in sites}
+
+    d["cells_upstream"] = np.nan
+    for site, up in chain.items():
+        m = (d[SITE_KEY] == site).to_numpy()
+        d.loc[m, "cells_upstream"] = cache[up][m]
+    d["cells_basin_mean"] = np.nan
+    for members in basins.values():
+        for site in members:
+            others = [o for o in members if o != site]
+            if not others:
+                continue
+            m = (d[SITE_KEY] == site).to_numpy()
+            stack = np.vstack([cache[o] for o in others])
+            with np.errstate(all="ignore"):
+                d.loc[m, "cells_basin_mean"] = np.nanmean(stack, axis=0)[m]
+    return d.sort_index()
+
+
 # ---------------------------------------------------------------------------
 # 정답·분할
 # ---------------------------------------------------------------------------
@@ -458,6 +507,18 @@ def build_dataset(cfg: dict, bundle_dir: Path | None = None) -> pd.DataFrame:
             )
         else:
             log.info("하천 자료 없음(%s) → 건너뜀. scripts/fetch_wamis.py 로 수집", river_path)
+
+    # 4c. 같은 수계 다른 경보지점의 기준일 이전 최근 세포수 (상류 → 하류 전파 정보)
+    u_cfg = cfg.get("upstream")
+    if u_cfg:
+        merged = upstream_features(
+            merged, u_cfg.get("chain", {}), u_cfg.get("basins", {}), u_cfg.get("tolerance_days", 14)
+        )
+        log.info(
+            "상류 지점 결합: cells_upstream 결측 %.1f%%, cells_basin_mean 결측 %.1f%%",
+            merged["cells_upstream"].isna().mean() * 100,
+            merged["cells_basin_mean"].isna().mean() * 100,
+        )
 
     # 5. 정답·분할
     pairs_path = bundle_dir / cfg.get("pairs_file", "")

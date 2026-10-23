@@ -180,3 +180,39 @@ def test_river_features_builds_flow_and_stage_columns():
     gj = feat[feat["station_id"] == "GJGR"]
     assert gj["stage"].isna().all() and "flow" not in gj.columns or gj["flow"].isna().all()
     assert "CS" not in set(feat["station_id"])  # 매핑 없는 지점은 행 없음
+
+
+def test_upstream_features_use_only_past_measurements():
+    from data_ai.bloom import upstream_features
+
+    d = pd.DataFrame(
+        {
+            "station_id": ["HP", "HP", "GJGR", "GJGR", "CS", "DCHN"],
+            "date": pd.to_datetime(
+                ["2024-06-03", "2024-06-17", "2024-06-10", "2024-06-24", "2024-06-10", "2024-06-10"]
+            ),
+            "cyano_cells": [999.0, 9.0, 99.0, 9999.0, 0.0, 5.0],
+        }
+    )
+    out = upstream_features(
+        d,
+        chain={"GJGR": "HP", "CS": "GJGR"},
+        basins={"nak": ["HP", "GJGR", "CS"]},
+        tolerance_days=14,
+    )
+    g = out[out["station_id"] == "GJGR"].sort_values("date")
+    # 6/10 기준: 해평의 6/3 값(999)만 보인다. 6/17 값(9)은 미래이므로 안 씀
+    assert np.isclose(g["cells_upstream"].iloc[0], np.log10(1000))
+    # 6/24 기준: 해평 최근값은 6/17(9)
+    assert np.isclose(g["cells_upstream"].iloc[1], np.log10(10))
+    # 해평(최상류)은 상류 없음, 회남은 수계 밖 → 둘 다 결측
+    assert out.loc[out["station_id"] == "HP", "cells_upstream"].isna().all()
+    assert (
+        out.loc[out["station_id"] == "DCHN", ["cells_upstream", "cells_basin_mean"]]
+        .isna()
+        .all()
+        .all()
+    )
+    # 창녕함안 6/10 기준 수계 평균 = 해평 6/3(999) 과 강정고령 6/10(99) 의 log 평균
+    cs = out[out["station_id"] == "CS"]["cells_basin_mean"].iloc[0]
+    assert np.isclose(cs, (np.log10(1000) + np.log10(100)) / 2)
