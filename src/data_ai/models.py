@@ -21,6 +21,7 @@ DEFAULT_PARAMS = {
     "bagging_fraction": 0.8,
     "bagging_freq": 1,
     "lambda_l2": 1.0,
+    "extra_trees": True,  # 분할점 무작위화 — 4차 실험에서 롤링 검증 평균 rmse_log10 0.01 개선
     "verbose": -1,
     "seed": SEED,
 }

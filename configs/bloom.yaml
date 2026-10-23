@@ -111,6 +111,12 @@ river:                           # WAMIS 하천 수위·유량 (scripts/fetch_wa
   windows: [7, 28]                          # r_flow_mean7d/28d, r_stage_mean7d/28d + log_flow_mean7d, flow_rel28d, stage_diff7d
   tolerance_days: 3
 
+upstream:                        # 같은 수계 다른 경보지점의 기준일 이전 최근 세포수 (4차 실험에서 채택, 2026-10-23)
+  chain: {GJGR: HP, CS: GJGR, MGMR: CS}        # 낙동강 본류 바로 상류 지점 → cells_upstream
+  basins:
+    nakdong: [HP, GJGR, CS, MGMR]              # 같은 수계 다른 지점 평균 → cells_basin_mean (회남은 금강 단독)
+  tolerance_days: 14                           # 이보다 오래된 측정은 결측 처리
+
 target:                          # pairs_file 이 있으면 그 규칙을 그대로 사용. 없을 때만 아래 규칙으로 계산
   horizon_days: 7
   tolerance_days: 3
