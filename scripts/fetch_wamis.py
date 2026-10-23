@@ -53,28 +53,29 @@ DEFAULT_QC = ROOT / "reports" / "wamis_qc.csv"
 
 
 # ──────────────────────────────── HTTP ────────────────────────────────
-def get_json(path: str, params: dict, base_url: str = BASE_URL, retries: int = 3) -> dict:
-    """WAMIS JSON 응답을 dict 로 반환. 일시 오류는 지수 백오프로 재시도."""
+def get_json(path: str, params: dict, base_url: str = BASE_URL, retries: int = 5) -> dict:
+    """WAMIS JSON 응답을 dict 로 반환. 연결 끊김·시간 초과·서버 오류는 지수 백오프로 재시도."""
     url = f"{base_url.rstrip('/')}/{path}"
     q = {**params, "output": "json"}
     last: Exception | None = None
     for i in range(retries):
         try:
-            r = requests.get(url, params=q, timeout=60)
+            r = requests.get(url, params=q, timeout=60, headers={"Connection": "close"})
             r.raise_for_status()
             return r.json()
-        except (requests.ConnectionError, requests.Timeout) as e:
-            last = e
-            time.sleep(2**i)
         except requests.HTTPError as e:
             if 500 <= e.response.status_code < 600 and i < retries - 1:
                 last = e
                 time.sleep(2**i)
                 continue
             raise
+        except (requests.RequestException, ValueError) as e:
+            # ConnectionError, Timeout, ChunkedEncodingError(10054 연결 끊김), JSON 파싱 실패 등
+            last = e
+            time.sleep(2**i)
     raise ConnectionError(
-        f"WAMIS 접속 실패({url}). 8080 포트가 막힌 네트워크일 수 있습니다. "
-        f"다른 네트워크(집·휴대폰 테더링)에서 다시 실행해 보세요.\n원인: {last}"
+        f"WAMIS 접속 실패({url}). 8080 포트가 막힌 네트워크이거나 서버가 응답을 끊고 있습니다. "
+        f"잠시 후 다시 실행하거나 다른 네트워크(집·휴대폰 테더링)에서 실행해 보세요.\n원인: {last}"
     )
 
 
