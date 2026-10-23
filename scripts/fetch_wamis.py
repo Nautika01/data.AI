@@ -115,7 +115,13 @@ def resolve_code(name: str, stations: pd.DataFrame) -> str:
     exact = stations[norm == target]
     if len(exact) == 1:
         return str(exact["obscd"].iloc[0])
-    partial = stations[norm.str.contains(re.escape(target)) | norm.map(lambda s: s in target)]
+    # '성주군(성주대교)' 처럼 괄호 안 이름이 정확히 같은 관측소를 우선
+    inner = stations["obsnm"].str.extract(r"\(([^)]*)\)")[0].fillna("").map(normalize)
+    exact_inner = stations[inner == target]
+    if len(exact_inner) == 1:
+        return str(exact_inner["obscd"].iloc[0])
+    # 후보 이름이 찾는 이름을 포함할 때만 부분 일치로 인정 ('성주' 가 '성주대교' 에 걸리지 않도록)
+    partial = stations[norm.str.contains(re.escape(target))]
     if len(partial) == 1:
         return str(partial["obscd"].iloc[0])
     cands = partial if len(partial) else stations
