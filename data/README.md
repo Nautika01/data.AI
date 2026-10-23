@@ -28,7 +28,7 @@
 국가참조표준센터 이용 준수사항 때문에 주최 측이 재배포하지 않음. 필요 시 각자 내려받아 `data/external/`에 두고, **저장소에 올리지 않는다**.
 2024년 데이터까지만 수록되어 '25 검증·'26 평가 구간에는 쓸 수 없다.
 
-## data/external — WAMIS 하천 수위·유량 일자료 (`python scripts/fetch_wamis.py`, git 제외)
+## data/external — WAMIS 하천 수위·유량 일자료 (`python scripts/fetch_wamis.py`, 2026-10-23 수집본 저장소 포함)
 
 WAMIS OpenAPI(인증키 불필요, 8080 포트)로 낙동강 하천 관측소 12계열(유량 5 + 수위 7)을 받는다.
 대상 관측소·녹조 지점 연결은 `configs/wamis_stations.yaml`, 결과 점검표는 `reports/wamis_qc.csv`.
@@ -43,4 +43,5 @@ WAMIS OpenAPI(인증키 불필요, 8080 포트)로 낙동강 하천 관측소 12
 
 - `wamis_daily.csv`: `date, kind(wl=수위 m / fw=유량 m³/s), obscd, obsnm, station, bloom_sites, value` long 형식.
 - 주의: 칠곡보상 수위 0 값은 오류이므로 제외하고 쓴다. 2026년 값은 실시간 자료라 뒤에 보정될 수 있다.
+- 유량(fw)은 API 가 2026년분만 반환해 결합에서 제외한다(수위만 사용). 검증 결과는 `docs/modeling_notes.md`.
 - 회사·학교 네트워크에서 8080 포트가 막혀 있으면 다른 네트워크에서 실행한다.
