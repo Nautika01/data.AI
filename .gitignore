@@ -64,3 +64,6 @@ htmlcov/
 Thumbs.db
 .vscode/
 .idea/
+
+# CatBoost 학습 로그 (scripts/experiments_ensemble.py 실행 시 생성)
+catboost_info/

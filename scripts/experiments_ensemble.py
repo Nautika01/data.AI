@@ -84,6 +84,7 @@ for name, (tr, va) in sets.items():
         random_seed=SEED,
         verbose=0,
         cat_features=cat_idx,
+        allow_writing_files=False,
     )
     preds["cat"] = m.fit(a, y).predict(b)
     preds["vote3"] = (preds["lgb"] + preds["xgb"] + preds["cat"]) / 3
