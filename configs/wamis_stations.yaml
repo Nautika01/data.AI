@@ -10,22 +10,22 @@ stations:
   - name: 구미대교
     kinds: [fw, wl]
     bloom_sites: [HP]
-    obscd: {fw: "", wl: ""}
+    obscd: {fw: "2011640", wl: "2011640"}      # 2026-10-23 WAMIS 목록에서 확인
   - name: 구미보하
     kinds: [wl]
     bloom_sites: [HP]
-    obscd: {wl: ""}
+    obscd: {wl: "2009682"}
   - name: 칠곡보상
     kinds: [wl]
     bloom_sites: [HP, GJGR]
-    obscd: {wl: ""}
+    obscd: {wl: "2011648"}
     note: "수위 0 값은 결측·오류로 보고 제외하고 쓴다"
 
   # ── 강정·고령(GJGR) ────────────────────────────────────────
   - name: 성주대교
     kinds: [fw, wl]
     bloom_sites: [GJGR]
-    obscd: {fw: "", wl: ""}
+    obscd: {fw: "2011660", wl: "2011660"}      # 성주군(성주대교). '성주'(2013611)와 구분
   - name: 강정고령보하
     kinds: [wl]
     bloom_sites: [GJGR]

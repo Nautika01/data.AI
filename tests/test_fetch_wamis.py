@@ -14,8 +14,8 @@ spec.loader.exec_module(mod)
 
 STATIONS = pd.DataFrame(
     {
-        "obscd": ["2001601", "2001602", "2001603", "2001604"],
-        "obsnm": ["구미대교", "구미보(하류)", "강정 고령보 하류", "성주대교"],
+        "obscd": ["2001601", "2001602", "2001603", "2001604", "2013611"],
+        "obsnm": ["구미대교", "구미보(하류)", "강정 고령보 하류", "성주군(성주대교)", "성주"],
     }
 )
 
@@ -30,6 +30,7 @@ def test_resolve_code_exact_and_fuzzy():
     assert mod.resolve_code("구미대교", STATIONS) == "2001601"
     assert mod.resolve_code("구미보하", STATIONS) == "2001602"
     assert mod.resolve_code("강정고령보하", STATIONS) == "2001603"
+    assert mod.resolve_code("성주대교", STATIONS) == "2001604"  # 괄호 안 이름 우선, '성주' 와 구분
 
 
 def test_resolve_code_ambiguous_raises_with_candidates():
