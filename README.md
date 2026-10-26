@@ -42,8 +42,9 @@
 
 | 산출물 | 위치 |
 |---|---|
-| 방법 설명서 초안 (제출용) | [docs/method_description.md](docs/method_description.md) |
+| 방법 설명서 (제출용) | [docs/method_description.md](docs/method_description.md) |
 | 제출 파일 | `reports/submission.csv` (`make train`으로 재생성) |
+| 제출 체크리스트 | [docs/submission_checklist.md](docs/submission_checklist.md) |
 | 모델링 기록·실험 표 | [docs/modeling_notes.md](docs/modeling_notes.md), `reports/metrics.csv`, `reports/experiments*.csv` |
 | 초보자용 코드 가이드 | `notebooks/00_code_guide.ipynb` |
 | EDA | `notebooks/01_eda_bloom.ipynb` |
@@ -53,11 +54,11 @@
 
 ```
 .
-├── data/                # 데이터 (git 추적 제외, .gitkeep만 유지)
-│   ├── raw/             # 원본 데이터 (수정 금지)
-│   ├── external/        # 외부·융합 데이터 (기상, 인구, 지리 등)
+├── data/                # 데이터 (번들·WAMIS 수집본은 추적, 가공 결과는 제외)
+│   ├── raw/             # 대회 배포 번들 8개 (수정 금지)
+│   ├── external/        # 외부·융합 데이터 (wamis_daily.csv 포함)
 │   ├── interim/         # 중간 산출물
-│   └── processed/       # 모델 입력용 최종 데이터
+│   └── processed/       # 모델 입력용 최종 데이터 (make data 산출)
 ├── notebooks/           # EDA·실험 노트북 (번호-주제 명명: 01_eda_xxx.ipynb)
 ├── src/data_ai/         # 재사용 가능한 파이썬 패키지
 │   ├── config.py        # 경로·시드 등 공통 설정
@@ -69,7 +70,7 @@
 │   ├── viz.py           # 그림 스타일·팔레트·한글 폰트
 │   └── utils.py         # 로깅·시드 고정 등
 ├── configs/bloom.yaml   # 열 이름 매핑, 집계 창, 정답·분할 규칙
-├── scripts/             # make_dataset, train, evaluate, score_submission, experiments, fetch_data_go_kr, fetch_wamis
+├── scripts/             # make_dataset, train, evaluate, score_submission, experiments*, fetch_data_go_kr, fetch_wamis
 ├── reports/             # 제출 파일·지표·그림
 ├── docs/                # 대회 안내, 과제 후보, 해결안 양식
 ├── tests/               # 단위 테스트
@@ -103,7 +104,7 @@ jupyter lab        # notebooks/01_eda_bloom.ipynb 부터
 ## 작업 원칙
 
 - **재현성**: 모든 결과는 `scripts/`로 재현 가능해야 하며, 난수 시드는 `src/data_ai/config.py`에서 고정합니다.
-- **데이터 관리**: `data/` 아래 실제 데이터는 git에 올리지 않습니다. 출처·라이선스·수집 일자는 `data/README.md`에 기록합니다.
+- **데이터 관리**: 공공저작물인 배포 번들과 WAMIS 수집본만 git에 올리고, 가공 결과와 재배포 금지 자료는 올리지 않습니다. 출처·라이선스·수집 일자는 `data/README.md`에 기록합니다.
 - **융합 데이터**: 가점 요건이므로, 과제 데이터와 결합할 외부 데이터(기상, 인구, 지리, 교통 등)를 `data/external/`에 두고 출처를 명시합니다.
 - **노트북 → 코드**: 노트북에서 검증된 로직은 `src/data_ai/`로 옮겨 테스트합니다.
 - **문서화**: 제출용 해결안은 [docs/proposal_template.md](docs/proposal_template.md) 양식을 따릅니다.
@@ -112,17 +113,14 @@ jupyter lab        # notebooks/01_eda_bloom.ipynb 부터
 
 상세 일정은 [docs/work_plan.md](docs/work_plan.md) 4장 참조.
 
-- [x] 과제 확정 (녹조 7일 예측)
-- [ ] 참가 신청, 공식 요강·제공 데이터 확인, 역할 분담 (10-19)
-- [ ] 조류경보제·기상·댐 운영 데이터 수집, `data/README.md` 기록 (~10-21)
-- [ ] 데이터 결합 및 EDA (~10-23)
-- [ ] 베이스라인 + 피처 설계 (~10-25)
-- [ ] LightGBM 모델, 연도별 롤링 검증, 선행 탐지 지표 (~10-28)
-- [ ] SHAP 해석, 사례 분석 (~10-29)
-- [ ] 중간 점검 (10-30)
-- [ ] 보고서·재현 코드·그림 완성 (~11-03)
-- [ ] 교차 리뷰 후 **11-05 제출** (마감 11-06)
-- [ ] (서류 평가 통과 시) 발표 준비 — 11-25 발표평가
+- [x] 과제 확정 (녹조 7일 예측), 참가 신청
+- [x] 배포 번들 적재, 데이터 결합, EDA
+- [x] 결측 전략 3안 비교, LightGBM, 롤링 검증, 제출 파일 생성
+- [x] 실험 4차 + 외부 자료 5종 검증 → 모델 확정 (10-26)
+- [x] 방법 설명서 수치 갱신
+- [ ] 방법 설명서에 팀원 이름 기입
+- [ ] 다른 PC에서 처음부터 재현해 `reports/submission.csv` 일치 확인
+- [ ] 교차 리뷰 후 **11-05 제출** (마감 11-06) — 순서는 [docs/submission_checklist.md](docs/submission_checklist.md)
 
 ## 참고 자료
 
