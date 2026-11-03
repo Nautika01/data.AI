@@ -10,6 +10,20 @@
 
 벤치마크(국립환경과학원 AI 예측정보) 비교는 주최 측 평가 항목이라 우리가 할 일이 아니다.
 
+제출 규격(개발 결과물 제출 안내)에 맞춘 추가 산출물 상태 (11-03):
+
+| 항목 | 위치 | 상태 |
+|---|---|---|
+| 학습된 모델 파일 | `model/lgb_final.joblib`, `model/train_meta.json` | 저장소 포함. `python scripts/predict.py` 로 추론 재현(제출 파일과 124건 일치) |
+| 데이터 | `data/raw/` 번들 8개, `data/external/wamis_daily.csv` | 저장소 포함(공공저작물). DataON 자료는 재배포 금지라 제외 |
+| 처음부터 끝까지 실행 노트북 | `notebooks/02_pipeline_end_to_end.ipynb` | 실행 결과 포함(적재→결합→학습→검증→제출→그림→SHAP), 11-03 전체 재실행 오류 0 |
+| 그림 | `figures/` (EDA 9장 + 모델 5장 + SHAP 2장) | 저장소 포함. `make report` 로 재생성 |
+| 데모 영상 | `demo/README.md` 시나리오 | **팀이 화면 녹화해 `demo/`에 넣어야 함** |
+| 버전 고정 파일 | `requirements.txt` (정확한 버전, pip freeze 상당) | 재현 확인 환경(Python 3.13) 기준. 개발용 범위 목록은 `requirements-min.txt` |
+| README 규격 재작성 | `README.md` | 11-03 규격(결과물 구성, 데이터·모델, 실행 방법, 실행환경)에 맞춰 재작성 완료 |
+| 5. AI 활용범위 보고서 | `docs/ai_usage_report.md` | 작성 완료. `[확인 필요]` 4곳은 팀이 채움 |
+| 키·비밀 점검 | 커밋 49개 전체 diff 검색: API 키·토큰·비밀번호·개인키 패턴 없음, 전화번호 없음, 이메일은 커밋 작성자 메타데이터뿐 | 11-03 확인 완료 |
+
 ## 남은 일 (순서대로)
 
 1. **팀원 이름·역할 기입** — `docs/method_description.md` 맨 위 `[이름 기입]`. 팀에서 정해서 알려주면 반영.
