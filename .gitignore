@@ -30,16 +30,18 @@ data/**
 !data/processed/.gitkeep
 !data/external/.gitkeep
 
-# Models & outputs
-models/
+# Models & outputs: 최종 제출 모델(models/lgb_final.joblib, train_meta.json)은 제출물이라 추적
+models/*
+!models/lgb_final.joblib
+!models/train_meta.json
 *.pkl
-*.joblib
 *.h5
 *.pt
 *.onnx
 mlruns/
 reports/figures/*
 !reports/figures/.gitkeep
+!reports/figures/*.png
 reports/*.csv
 !reports/submission.csv
 !reports/metrics.csv
@@ -49,6 +51,9 @@ reports/*.csv
 !reports/hpo_round3.csv
 !reports/experiments_round4.csv
 !reports/wamis_qc.csv
+!reports/pred_valid_2025.csv
+!reports/feature_importance_valid.csv
+!reports/feature_importance_final.csv
 reports/slides/*.jpg
 reports/slides/*.pdf
 

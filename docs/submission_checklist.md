@@ -10,6 +10,20 @@
 
 벤치마크(국립환경과학원 AI 예측정보) 비교는 주최 측 평가 항목이라 우리가 할 일이 아니다.
 
+제출 규격(개발 결과물 제출 안내)에 맞춘 추가 산출물 상태 (11-03):
+
+| 항목 | 위치 | 상태 |
+|---|---|---|
+| 학습된 모델 파일 | `models/lgb_final.joblib`, `models/train_meta.json` | 저장소 포함. `python scripts/predict.py` 로 추론 재현(제출 파일과 124건 일치) |
+| 데이터 | `data/raw/` 번들 8개, `data/external/wamis_daily.csv` | 저장소 포함(공공저작물). DataON 자료는 재배포 금지라 제외 |
+| 처음부터 끝까지 실행 노트북 | `notebooks/02_pipeline_end_to_end.ipynb` | 실행 결과 포함(적재→결합→학습→검증→제출→그림) |
+| 그림 | `reports/figures/` (EDA 9장 + 모델 5장) | 저장소 포함. `make report` 로 재생성 |
+| 데모 영상 | `docs/demo_script.md` 시나리오 | **팀이 화면 녹화해야 함** |
+| 버전 고정 파일 | `requirements-lock.txt` | 재현 확인 환경(Python 3.13) 기준 |
+| README 규격 재작성 | `README.md` | **제출 안내 규격 확인 후 수정** |
+| 5. AI 활용범위 보고서 | 팀 보관 docx | 5.1 빈칸, 5.2 메모, 5.4 "문의" 표현 확인 |
+| 키·비밀 점검 | `.env` git 제외, 커밋 이력에 키 없음 | 확인 완료 |
+
 ## 남은 일 (순서대로)
 
 1. **팀원 이름·역할 기입** — `docs/method_description.md` 맨 위 `[이름 기입]`. 팀에서 정해서 알려주면 반영.
