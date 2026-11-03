@@ -1,15 +1,19 @@
+# demo/ — 추론 과정 데모 영상
+
+이 폴더에 데모 영상 파일(`demo_inference.mp4`)을 넣는다. 아래는 녹화 시나리오다.
+
 # 데모 영상 시나리오 (추론 과정, 약 3분)
 
 화면 녹화 도구(Windows: Win+G 또는 OBS)로 터미널 화면을 녹화한다. 말로 설명하지 않아도 되며, 아래 순서대로 명령을 치고 결과가 나오는 것을 보여 주면 된다. 녹화 전에 `git pull` 로 최신 main 상태인지 확인한다.
 
 | 순서 | 보여줄 것 | 명령 | 화면에 나와야 하는 것 |
 |---|---|---|---|
-| 1 | 저장소 구조 (10초) | `dir` 또는 `ls` | data/, src/, scripts/, models/, reports/ 폴더 |
+| 1 | 저장소 구조 (10초) | `dir` 또는 `ls` | data/, model/, src/, scripts/, notebooks/, figures/, demo/ 폴더 |
 | 2 | 입력 데이터 결합 (30초) | `python scripts/make_dataset.py` | "기상 결합", "댐 결합", "하천 결합", "상류 지점 결합" 로그와 최종 2,939행 × 134열 |
 | 3 | 저장된 모델로 추론 (30초) | `python scripts/predict.py --station HP` | 모델·전략·피처 수, 평가 조합 124건, "제출 파일과 비교: 불일치 0건", 해평 지점 예측 표 |
 | 4 | 제출 파일 확인 (20초) | `python scripts/score_submission.py reports/submission.csv` | 124행 형식 검사 통과, 지점별 참고 점수 표 |
 | 5 | 검증 지표 (20초) | `python scripts/evaluate.py` | 결측 전략 비교표, 롤링 검증표, 피처 중요도 상위 15 |
-| 6 | 그림 (20초) | `reports/figures/` 폴더를 열어 `fig_valid2025_scatter.png`, `fig_submission_2026.png` 표시 | 실측 vs 예측 산점도, 2026 예측 시계열 |
+| 6 | 그림 (20초) | `figures/` 폴더를 열어 `fig_valid2025_scatter.png`, `fig_submission_2026.png` 표시 | 실측 vs 예측 산점도, 2026 예측 시계열 |
 
 선택: 처음부터 학습까지 보여 주려면 3번 앞에 `python scripts/train.py`(약 1분)를 넣는다. 끝나면 `reports/submission.csv`가 다시 만들어지고 내용은 같다.
 

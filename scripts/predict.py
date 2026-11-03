@@ -1,4 +1,4 @@
-"""저장된 최종 모델(models/lgb_final.joblib)로 평가 조합을 추론하는 데모·검증 스크립트.
+"""저장된 최종 모델(model/lgb_final.joblib)로 평가 조합을 추론하는 데모·검증 스크립트.
 
 `make train` 이 만든 모델과 train_meta.json 을 읽어 2026년 평가 조합 124건을 다시 예측하고,
 reports/submission.csv 와 같은지 확인한다. 학습은 하지 않는다.

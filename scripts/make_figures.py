@@ -1,10 +1,11 @@
-"""보고서 그림 생성 → reports/figures/. `make train` 산출물(models/, reports/*.csv)이 있어야 한다.
+"""보고서 그림 생성 → figures/. `make train` 산출물(model/, reports/*.csv)이 있어야 한다.
 
 - fig_importance_top20.png    최종 모델 피처 중요도(gain) 상위 20
 - fig_valid2025_scatter.png   검증 2025 실측 vs 예측 (log10), 경보 기준선
 - fig_valid2025_timeseries.png 검증 2025 지점별 실측·예측 시계열
 - fig_metrics_by_split.png    검증·롤링 구간별 rmse_log10 (persistence 기준선 포함)
 - fig_submission_2026.png     2026 평가 조합 예측 시계열 (제출값)
+- fig_shap_bar.png / fig_shap_beeswarm.png  최종 모델 SHAP (검증 2025 행, 상위 15)
 """
 
 from __future__ import annotations
@@ -130,6 +131,32 @@ def fig_submission() -> None:
     _save(fig, "fig_submission_2026.png")
 
 
+def fig_shap() -> None:
+    """최종 모델의 SHAP 요약. 검증 2025 행에 대해 계산(학습 시와 같은 결측 전략·범주 목록 사용)."""
+    import json
+
+    import shap
+
+    from data_ai.config import MODELS_DIR, PROCESSED_DIR
+    from data_ai.features import apply_missing_strategy, feature_columns, to_matrix
+    from data_ai.models import load_model
+
+    meta = json.loads((MODELS_DIR / "train_meta.json").read_text(encoding="utf-8"))
+    df = pd.read_parquet(PROCESSED_DIR / "bloom.parquet")
+    labeled = df["target_valid"]
+    final_mask = labeled & df["split"].isin(["train", "valid"])
+    d = apply_missing_strategy(df, meta["strategy"], final_mask)
+    cols = feature_columns(d)
+    _, cats = to_matrix(d[final_mask], cols)
+    x_v, _ = to_matrix(d[labeled & df["split"].eq("valid")], cols, cats)
+    sv = shap.TreeExplainer(load_model("lgb_final")).shap_values(x_v)
+    for kind, name in (("bar", "fig_shap_bar.png"), ("dot", "fig_shap_beeswarm.png")):
+        plt.figure()
+        shap.summary_plot(sv, x_v, plot_type=kind, max_display=15, show=False)
+        plt.title("SHAP (검증 2025, log10 단위)")
+        _save(plt.gcf(), name)
+
+
 def main() -> None:
     set_seed()
     ensure_dirs()
@@ -140,6 +167,7 @@ def main() -> None:
     fig_valid_timeseries(pv)
     fig_metrics()
     fig_submission()
+    fig_shap()
     assert (RAW_DIR / "sample_submission.csv").exists()
     log.info("완료: %s", FIGURES_DIR)
 

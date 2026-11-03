@@ -198,7 +198,7 @@ def main() -> None:
         encoding="utf-8",
     )
     log.info(
-        "저장: reports/submission.csv (%d행), reports/metrics.csv, models/lgb_final.joblib",
+        "저장: reports/submission.csv (%d행), reports/metrics.csv, model/lgb_final.joblib",
         len(out),
     )
 

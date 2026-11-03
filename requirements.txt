@@ -1,35 +1,88 @@
-# core
-numpy>=1.26
-pandas>=2.2
-scipy>=1.13
-scikit-learn>=1.5
-pyarrow>=16.0
+# pip freeze 상당: 재현 확인 환경 (Ubuntu 24.04, x86_64, Python 3.13.16), 2026-11-03
+# 프로젝트가 import 하는 패키지와 그 의존성만 정확한 버전으로 고정. 설치: pip install -r requirements.txt
+# 버전 범위만 적은 개발용 목록은 requirements-min.txt. GPU·CUDA 불필요.
 
-# gradient boosting
-lightgbm>=4.3
-xgboost>=2.0
-
-# visualization
-matplotlib>=3.9
-seaborn>=0.13
-plotly>=5.22
-
-# geospatial (결빙·항적·수문 과제용, 필요 시)
-geopandas>=1.0
-shapely>=2.0
-
-# NLP (대체텍스트·회의록 과제용, 필요 시)
-# konlpy>=0.6
-# transformers>=4.44
-# torch>=2.3
-
-# notebooks & tooling
-jupyterlab>=4.2
-python-dotenv>=1.0
-requests>=2.32
-tqdm>=4.66
-pyyaml>=6.0
-
-# dev
-pytest>=8.2
-ruff>=0.5
+asttokens==3.0.2
+attrs==26.1.0
+beautifulsoup4==4.15.0
+bleach==6.4.0
+certifi==2026.7.22
+cffi==2.1.1
+charset-normalizer==3.5.1
+cloudpickle==3.1.2
+colorama==0.4.6
+comm==0.2.3
+contourpy==1.4.0
+cycler==0.12.1
+debugpy==1.8.22
+defusedxml==0.7.1
+executing==2.3.0
+fastjsonschema==2.22.2
+fonttools==4.67.0
+idna==3.20
+iniconfig==2.3.1
+ipykernel==7.4.0
+ipython==9.17.1
+ipython_pygments_lexers==1.1.1
+jedi==0.20.1
+jinja2==3.1.6
+joblib==1.6.0
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+jupyter_client==8.10.0
+jupyter_core==5.9.1
+jupyterlab_pygments==0.3.0
+kiwisolver==1.5.1
+lightgbm==4.7.0
+markupsafe==3.0.3
+matplotlib==3.11.2
+matplotlib-inline==0.2.2
+mistune==3.3.4
+narwhals==2.27.1
+nbclient==0.11.0
+nbconvert==7.17.2
+nbformat==5.11.1
+nest-asyncio2==1.7.4
+numpy==2.5.3
+packaging==26.3
+pandas==3.0.5
+pandocfilters==1.5.1
+parso==0.8.7
+pexpect==4.9.0
+pillow==12.3.0
+platformdirs==4.13.5
+plotly==7.1.0
+pluggy==1.7.0
+prompt_toolkit==3.0.53
+psutil==7.2.2
+ptyprocess==0.7.0
+pure_eval==0.2.4
+pyarrow==26.0.0
+pycparser==3.0
+pygments==2.21.0
+pyparsing==3.1.1
+pytest==9.1.1
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.3
+pyyaml==6.0.1
+pyzmq==27.2.0
+referencing==0.37.0
+requests==2.34.2
+rpds-py==2026.6.3
+ruff==0.17.1
+scikit-learn==1.9.1
+scipy==1.18.1
+seaborn==0.13.2
+shap==0.54.1
+six==1.17.0
+slicer==0.0.8
+soupsieve==2.9.2
+stack-data==0.6.3
+threadpoolctl==3.7.0
+tornado==6.5.10
+tqdm==4.70.1
+traitlets==5.16.1
+typing_extensions==4.16.0
+urllib3==2.8.0
+wcwidth==0.9.2
+webencodings==0.6.1

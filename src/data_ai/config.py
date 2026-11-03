@@ -17,9 +17,9 @@ EXTERNAL_DIR = DATA_DIR / "external"
 INTERIM_DIR = DATA_DIR / "interim"
 PROCESSED_DIR = DATA_DIR / "processed"
 
-MODELS_DIR = PROJECT_ROOT / "models"
+MODELS_DIR = PROJECT_ROOT / "model"  # 제출 규격 폴더명
 REPORTS_DIR = PROJECT_ROOT / "reports"
-FIGURES_DIR = REPORTS_DIR / "figures"
+FIGURES_DIR = PROJECT_ROOT / "figures"  # 제출 규격 폴더명
 
 SEED = int(os.getenv("SEED", "42"))
 
