@@ -41,7 +41,7 @@
 - LightGBM 회귀, 목표 log10(세포수+1), 손실 L2(공식 지표 rmse_log10과 일치).
 - 하이퍼파라미터: learning_rate 0.03, num_leaves 15, min_child_samples 20, feature_fraction 0.8, bagging 0.8, λ2 1.0, extra_trees(분할점 무작위화), 시드 42. 반복 수는 공식 검증에서 early stopping으로 결정(146).
 - 5개 지점 통합 모델. 지점 ID와 우점종은 범주형 입력.
-- 최종 제출 모델은 학습+검증(≤2025) 전체로 재학습(반복 수 ×1.1) 후 2026년 평가 조합을 예측. 예측값은 원 단위로 환산해 0 이상 정수로 반올림.
+- 최종 제출 모델은 대회 Q&A ⑤에 따라 **학습 자료(split=train, ≤2024)만으로** 학습한다. 2025년 검증 자료는 결측 전략과 반복 수 결정에만 쓴다. 반복 수는 early stopping 값(146) 그대로. 2026년 평가 조합을 예측한 뒤 원 단위로 환산해 0 이상 정수로 반올림.
 
 ## 5. 검증 설계와 결과
 
@@ -87,4 +87,4 @@ make score       # 제출 형식 검사(+번들 실측 자체 채점, 참고)
 
 시드 고정(42). 예측값 하드코딩·실측 조회 없음. 입력은 기준일 포함 과거 자료만 사용.
 
-재현 확인(2026-10-26): 저장소를 새로 clone 한 뒤 위 명령을 그대로 실행해 얻은 `reports/submission.csv`가 저장소의 제출 파일과 124행 모두 동일했다(md5 1949a39d…). `reports/metrics.csv`도 일치. 환경: Python 3.13, lightgbm 4.7, pandas 2.x, Linux. 다른 OS·버전에서는 부동소수 차이로 몇 건이 ±1 cells 달라질 수 있으나 지표에는 영향이 없다.
+재현 확인(2026-11-05, Q&A ⑤ 반영 후): `make train` 재실행과 저장된 `model/lgb_final.joblib`로의 추론(`make predict`)이 `reports/submission.csv`와 124행 모두 동일했다(md5 0efb6da6…). 10-26·11-03에는 새 clone 재현(Linux)과 Windows 11 재현을 이전 제출 파일로 확인했다. 환경: Python 3.13, lightgbm 4.7, pandas 3.0, Linux. 다른 OS·버전에서는 부동소수 차이로 몇 건이 ±1 cells 달라질 수 있으나 지표에는 영향이 없다.

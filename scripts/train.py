@@ -2,7 +2,9 @@
 
 1. 결측 전략 3안을 공식 분할(train ~'24 → valid '25)에서 비교
 2. 선택 전략으로 롤링 검증('22·'23·'25: 각 연도 이전 자료만으로 학습) — 안정성 확인
-3. train+valid(≤'25) 로 최종 학습 → '26 평가 조합 예측 → reports/submission.csv
+3. train(≤'24) 만으로 최종 학습 → '26 평가 조합 예측 → reports/submission.csv
+   (대회 Q&A ⑤: 최종 모델 학습에는 split=train 만 사용,
+    2025년 자료는 모델 선택·하이퍼파라미터 결정에만 사용)
 
 규정 준수: 입력은 기준일 포함 과거 자료만(결합 단계에서 보장), test 정답 미사용, 시드 고정.
 """
@@ -153,14 +155,15 @@ def main() -> None:
         REPORTS_DIR / "feature_importance_valid.csv", index=False, encoding="utf-8-sig"
     )
 
-    # 3. 최종 학습 (train+valid) → 평가 조합 예측
-    final_mask = labeled & df["split"].isin(["train", "valid"])
+    # 3. 최종 학습 (split=train, ≤2024 만) → 평가 조합 예측
+    #    대회 Q&A ⑤: 2025년 검증 자료는 전략·반복 수 결정에만 쓰고 최종 모델 학습에는 넣지 않는다.
+    #    따라서 최종 모델 = 검증 단계 모델과 같은 자료·같은 반복 수(best_iter)로 학습한 모델.
+    final_split = ["train"]
+    final_mask = labeled & df["split"].isin(final_split)
     d = apply_missing_strategy(df, strategy, final_mask)
     cols = feature_columns(d)
     x_all, cats = to_matrix(d[final_mask], cols)
-    model = fit_lgb(
-        x_all, d.loc[final_mask, "log10_target_cells"].to_numpy(), num_rounds=int(best_iter * 1.1)
-    )
+    model = fit_lgb(x_all, d.loc[final_mask, "log10_target_cells"].to_numpy(), num_rounds=best_iter)
     test = d[d["is_test"]]
     x_te, _ = to_matrix(test, cols, cats)
     test_pred = predict_cells(model, x_te)
@@ -189,6 +192,8 @@ def main() -> None:
             {
                 "strategy": strategy,
                 "best_iter": best_iter,
+                "final_split": final_split,  # 최종 모델 학습에 쓴 split (Q&A ⑤: train 만)
+                "n_train_rows": int(final_mask.sum()),
                 "n_features": len(cols),
                 "features": cols,
             },

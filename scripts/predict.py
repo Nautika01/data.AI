@@ -36,7 +36,7 @@ def main() -> None:
 
     df = pd.read_parquet(PROCESSED_DIR / "bloom.parquet")
     labeled = df["target_valid"]
-    final_mask = labeled & df["split"].isin(["train", "valid"])  # 학습에 쓴 행(결측 통계·범주 기준)
+    final_mask = labeled & df["split"].isin(meta.get("final_split", ["train"]))  # 학습에 쓴 행
     d = apply_missing_strategy(df, meta["strategy"], final_mask)
     cols = feature_columns(d)
     assert cols == meta["features"], "피처 목록이 학습 시점과 다름"

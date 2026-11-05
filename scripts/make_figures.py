@@ -144,7 +144,7 @@ def fig_shap() -> None:
     meta = json.loads((MODELS_DIR / "train_meta.json").read_text(encoding="utf-8"))
     df = pd.read_parquet(PROCESSED_DIR / "bloom.parquet")
     labeled = df["target_valid"]
-    final_mask = labeled & df["split"].isin(["train", "valid"])
+    final_mask = labeled & df["split"].isin(meta.get("final_split", ["train"]))
     d = apply_missing_strategy(df, meta["strategy"], final_mask)
     cols = feature_columns(d)
     _, cats = to_matrix(d[final_mask], cols)

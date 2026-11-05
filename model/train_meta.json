@@ -1,6 +1,10 @@
 {
   "strategy": "ffill_flag",
   "best_iter": 146,
+  "final_split": [
+    "train"
+  ],
+  "n_train_rows": 2310,
   "n_features": 132,
   "features": [
     "station_id",
