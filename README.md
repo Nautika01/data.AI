@@ -73,7 +73,7 @@
 - LightGBM 회귀, 목표 log10(세포수+1), L2 손실, `extra_trees` 사용, 시드 42. 5개 지점 통합 모델.
 - 입력 132열: 조류 항목(기준일·이전 1~3회·속별 비율), 기상·댐 과거 7·14·28일 집계, 하천 수위, 같은 수계 상류 지점의 최근 세포수, 월·연중일, 지점.
 - 결측 대체: 세 전략(기본 처리 / 직전값+결측 표시 / 지점·월 중앙값+결측 표시)을 검증에서 비교해 자동 선택. 현재 선택: 직전값+결측 표시(ffill_flag).
-- 반복 수 146(공식 검증 early stopping). 최종 모델은 2025년까지 전체로 재학습(반복 ×1.1).
+- 반복 수 146(공식 검증 early stopping). 최종 모델은 대회 Q&A ⑤에 따라 학습 자료(split=train, ≤2024, 2,310행)만으로 학습하며, 2025년 검증 자료는 전략·반복 수 결정에만 쓴다.
 
 | 구간 | n | rmse_log10 | mae_log10 | R² | NSE | F1@10,000 |
 |---|---|---|---|---|---|---|
@@ -126,9 +126,9 @@ make test        # 단위 테스트 27개
 
 노트북으로 보려면 `jupyter lab notebooks/02_pipeline_end_to_end.ipynb`. 실행 결과가 저장돼 있어 열어서 읽기만 해도 되고, "Run All"로 약 3분이면 처음부터 다시 실행된다.
 
-재현 확인(2026-10-26, 11-03): 저장소를 새로 clone해 위 명령을 실행한 `reports/submission.csv`가 저장소 파일과 124행 모두 동일했고, 저장된 `model/lgb_final.joblib`로 추론한 값도 동일했다. 다른 OS에서는 부동소수 차이로 몇 건이 ±1 cells 달라질 수 있다.
+재현 확인(2026-11-05, Q&A ⑤ 반영 후 Linux): `make train` 재실행 결과와 저장된 `model/lgb_final.joblib` 추론(`make predict`)이 `reports/submission.csv`와 124행 모두 동일했다. 다른 OS에서는 부동소수 차이로 몇 건이 ±1 cells 달라질 수 있다.
 
-재현 확인: Windows 11 Pro, Python 3.14.6에서 새 clone 후 README 5절 순서대로 실행하여 `reports/submission.csv`가 저장소 파일과 124행 모두 일치함을 확인했고, `predict.py`는 "불일치 0건"을 출력함 (2026-11-05). 단, `pyyaml==6.0.1`이 Python 3.14에서 설치되지 않아 6.0.3으로 대체했고, 재학습 시 `metrics.csv` 등은 부동소수점 끝자리 수준으로 달라짐.
+재현 확인(Windows 11 Pro, Python 3.14.6, 2026-11-05, **Q&A ⑤ 반영 전 제출 파일 기준**): 새 clone 후 README 5절 순서대로 실행하여 `reports/submission.csv`가 저장소 파일과 124행 모두 일치함을 확인했고, `predict.py`는 "불일치 0건"을 출력함. [반영 후 파일로 재확인 필요] 단, `pyyaml==6.0.1`이 Python 3.14에서 설치되지 않아 6.0.3으로 대체했고, 재학습 시 `metrics.csv` 등은 부동소수점 끝자리 수준으로 달라짐.
 
 ## 6. 학습·평가·추론 흐름
 
