@@ -128,7 +128,7 @@ make test        # 단위 테스트 27개
 
 재현 확인(2026-10-26, 11-03): 저장소를 새로 clone해 위 명령을 실행한 `reports/submission.csv`가 저장소 파일과 124행 모두 동일했고, 저장된 `model/lgb_final.joblib`로 추론한 값도 동일했다. 다른 OS에서는 부동소수 차이로 몇 건이 ±1 cells 달라질 수 있다.
 
-재현 확인: Windows 11 Pro, Python 3.14.6에서 새 clone 후 README 5절 순서대로 실행하여 `reports/submission.csv`가 저장소 파일과 124행 모두 일치함을 확인했고, `predict.py`는 "불일치 0건"을 출력함 (2026-11-04). 단, `pyyaml==6.0.1`이 Python 3.14에서 설치되지 않아 6.0.3으로 대체했고, 재학습 시 `metrics.csv` 등은 부동소수점 끝자리 수준으로 달라짐.
+재현 확인: Windows 11 Pro, Python 3.14.6에서 새 clone 후 README 5절 순서대로 실행하여 `reports/submission.csv`가 저장소 파일과 124행 모두 일치함을 확인했고, `predict.py`는 "불일치 0건"을 출력함 (2026-11-05). 단, `pyyaml==6.0.1`이 Python 3.14에서 설치되지 않아 6.0.3으로 대체했고, 재학습 시 `metrics.csv` 등은 부동소수점 끝자리 수준으로 달라짐.
 
 ## 6. 학습·평가·추론 흐름
 
