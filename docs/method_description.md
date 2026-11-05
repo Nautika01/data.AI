@@ -1,6 +1,6 @@
 # 방법 설명서 — 댐·하천 유해남조류 7일 예측
 
-> 팀명: 19일의 월요일 · 팀원: [이름 기입] · 저장소: https://github.com/Nautika01/data.AI
+> 팀명: 19일의 월요일 · 팀원: 홍석민, 임소망, 주효빈, 강민주 · 저장소: https://github.com/Nautika01/data.AI
 > 작성 기준일 2026-10-26 (모델 확정). 모든 수치는 이 저장소 코드로 재현한 값이며, `make data && make train && make evaluate` 로 다시 얻을 수 있다.
 
 ## 1. 과제 이해
