@@ -6,7 +6,7 @@
 |---|---|---|
 | 학습 모델(재현 코드) | 저장소 전체. `make data && make train` | 11-05 Q&A ⑤ 반영(최종 모델 train만 학습). Linux 재현 확인 완료, **Windows 재확인 필요** |
 | 예측 결과 파일 | `reports/submission.csv` (124행) | 11-05 교체(train만 학습한 모델). 양식 검사 통과 |
-| 방법 설명서 | `docs/method_description.md` | 수치 확정. **팀원 이름 기입 남음** |
+| 방법 설명서 | `docs/method_description.md` | 수치 확정. |
 
 벤치마크(국립환경과학원 AI 예측정보) 비교는 주최 측 평가 항목이라 우리가 할 일이 아니다.
 
