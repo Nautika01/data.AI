@@ -4,7 +4,7 @@
 |---|---|
 | 대회 | 2026 DATA·AI 분석 경진대회 문제해결 부문 (KISTI 주관) |
 | 과제 | 7. 수질·수문·기상 융합 기반 댐·하천 유해남조류(녹조) 7일 예측 AI 모델 개발 |
-| 팀 | 19일의 월요일 (팀원: [이름 기입]) |
+| 팀 | 19일의 월요일 (팀원: 홍석민, 임소망, 주효빈, 강민주) |
 | 저장소 | https://github.com/Nautika01/data.AI |
 | 제출 파일 | `reports/submission.csv` (124행, `sample_submission.csv` 양식) |
 | 방법 설명서 | [docs/method_description.md](docs/method_description.md) |
