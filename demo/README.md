@@ -1,22 +1,40 @@
-# demo/ — 추론 과정 데모 영상
+# 데모 영상
 
-`demo_inference.mp4` (1280×720, 약 66초): 아래 "녹화 시나리오"를 Linux(Ubuntu 24.04, bash, Python 3.13)에서 그대로 따라 실행하며 화면 녹화한 영상이다. 저장소를 새로 clone 한 폴더(`~/work/data.AI-check`)에서 가상환경을 켜고 `ls model` → `head -n 5 reports/submission.csv` → `python scripts/predict.py` 순으로 한 줄씩 입력했다. 출력은 프로그램이 실제로 낸 것이며, 마지막에 "124건 중 불일치 0건" 줄이 보이는 상태로 멈춘다. Windows 에서는 아래 PowerShell 명령이 같은 역할을 한다.
+저장된 학습 모델로 평가 조합 124건을 추론하고, 제출 파일과 비교하는 과정을 녹화한 영상이다.
 
-## 녹화 시나리오 (1~2분)
+- 파일: `demo_inference.mp4` (약 2분 30초, 1920×1080)
+- 촬영 환경: Windows 11 Pro, Python 3.14.6 (lightgbm 4.7.0, numpy 2.5.3, pandas 3.0.5, scikit-learn 1.9.1)
 
-새로 clone 한 폴더에서 `python scripts/make_dataset.py`를 한 번 실행해 둔 뒤(처리 결과 `data/processed/`는 저장소에 없음) 명령을 한 줄씩 천천히 입력한다.
+## 영상 구성
 
-| 순서 | Windows PowerShell | Linux/macOS bash | 보여줄 것 |
-|---|---|---|---|
-| 1 | `cd $HOME\work\data.AI-check` | `cd ~/work/data.AI-check` | 저장소 폴더로 이동 |
-| 2 | `.venv\Scripts\activate` | `source .venv/bin/activate` | 프롬프트에 `(.venv)` |
-| 3 | `cls` | `clear` | 화면 정리 |
-| 4 | `dir model` | `ls model` | 학습된 모델 파일 `lgb_final.joblib` |
-| 5 | `Get-Content reports\submission.csv -TotalCount 5` | `head -n 5 reports/submission.csv` | 제출 예측값 파일 앞부분 |
-| 6 | `python scripts/predict.py` | 같음 | 핵심 장면. 124건 추론, "124건 중 불일치 0건" 줄이 나오면 3~4초 멈춤 |
+| 구간(약) | 화면 | 보여주는 것 |
+|---|---|---|
+| 0:00 ~ 0:35 | `dir` | 제출 폴더 구조: `README.md`, `data/`, `model/`, `src/`, `notebooks/`, `scripts/`, `demo/`, `figures/` 등 |
+| 0:35 ~ 1:20 | `python --version`, `pip list` | 실행 환경: Python 버전과 주요 라이브러리 버전 |
+| 1:20 ~ 1:55 | `dir model`, `Get-Content reports\submission.csv` | 학습된 모델 파일(`lgb_final.joblib`, `train_meta.json`)과 제출 파일 앞부분 |
+| 1:55 ~ 2:30 | `python scripts\predict.py` | 저장된 모델로 평가 조합 124건을 추론하고 제출 파일과 비교 |
 
-## 자주 생기는 문제
+## 추론 결과 (영상 마지막 장면)
 
-- `make` 명령이 없으면 위 표처럼 `python scripts/...` 로 직접 실행한다.
-- `ModuleNotFoundError: data_ai` → `pip install -e .` 를 먼저 실행한다.
-- 한글 폰트가 없으면 그림의 한글이 네모로 나온다. 그림은 저장소에 있는 png 를 그대로 보여 주면 된다.
+`python scripts\predict.py` 실행 시 아래 순서로 출력된다.
+
+```
+모델: lgb_final.joblib, 결측 전략 ffill_flag, 피처 132개
+추론: 평가 조합 124건 (기준일 2026-05-04 ~ 2026-09-03)
+제출 파일과 비교: 124건 중 불일치 0건
+```
+
+이어서 지점별 기준일, 예측 대상일, 기준일 세포수, 경보 단계, 예측 세포수(`pred_cells`)가 표로 나온다. 예측값은 `reports/submission.csv`와 124건 모두 일치한다.
+
+## 직접 실행하려면
+
+프로젝트 폴더에서 가상환경을 켜고 아래 순서로 실행한다. 설치와 환경 구성은 루트의 `README.md`를 따른다.
+
+```powershell
+pip install -r requirements.txt
+pip install -e .
+python scripts\make_dataset.py     # data/raw → data/processed 가공 데이터 생성
+python scripts\predict.py          # 저장된 모델로 124건 추론, 제출 파일과 비교
+```
+
+모델은 학습 자료(≤2024)만으로 시드 42로 학습했으며, 추론에는 `model/lgb_final.joblib`을 그대로 사용한다.
