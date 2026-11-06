@@ -72,3 +72,6 @@ Thumbs.db
 
 # CatBoost 학습 로그 (scripts/experiments_ensemble.py 실행 시 생성)
 catboost_info/
+
+# 제출 zip 산출 폴더
+dist/
