@@ -110,7 +110,7 @@ git clone https://github.com/Nautika01/data.AI.git
 cd data.AI
 python -m venv .venv
 source .venv/bin/activate            # Windows PowerShell: .venv\Scripts\activate
-pip install -r requirements.txt      # 정확한 버전
+pip install -r requirements.txt      # 정확한 버전 (설치 오류가 나면 pip install -r requirements-min.txt)
 pip install -e .                     # src/data_ai 패키지
 
 make data        # data/raw + data/external → data/processed/bloom.parquet  (python scripts/make_dataset.py)
