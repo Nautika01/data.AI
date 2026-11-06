@@ -1,7 +1,7 @@
 # demo/ — 추론 과정 데모 영상
 
-`demo_inference.mp4` (1280×720, 약 51초): 터미널(bash)에서 아래 순서로 명령을 붙여넣어 실행하는 과정을 그대로 화면 녹화한 영상이다. 출력은 실행 시점(2026-11-06, Ubuntu 24.04 / Python 3.13)에 프로그램이 실제로 낸 것이다.
-`ls model`(학습된 모델 파일) → `head -n 5 reports/submission.csv`(제출 파일 앞부분) → `python scripts/predict.py`(저장된 모델로 124건 추론, 제출 파일과 불일치 0건) → `python scripts/score_submission.py reports/submission.csv`(형식 검사) → `ls figures` → 결과 그림 2장.
+`demo_inference.mp4` (1280×720, 약 36초): 터미널(bash)에서 아래 순서로 명령을 붙여넣어 실행하는 과정을 그대로 화면 녹화한 영상이다. 출력은 실행 시점(2026-11-06, Ubuntu 24.04 / Python 3.13)에 프로그램이 실제로 낸 것이다.
+`ls model`(학습된 모델 파일) → `head -n 5 reports/submission.csv`(제출 파일 앞부분) → `python scripts/predict.py`(저장된 모델로 124건 추론, 제출 파일과 불일치 0건) → `python scripts/score_submission.py reports/submission.csv`(형식 검사).
 아래는 같은 내용을 직접 녹화할 때의 시나리오다.
 
 # 데모 영상 시나리오 (추론 과정, 약 3분)
