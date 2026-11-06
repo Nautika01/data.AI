@@ -266,7 +266,7 @@ DataON 자료는 댐 유역 관측소뿐이어서 효과가 없었으므로, 낙
 
 - 입력: 조류 항목(기준일·lag 1~3·속별 비율) + 기상 7·14·28일 집계 + 상류 댐 합산 집계 + WAMIS 본류 수위 + 상류 지점·수계 평균 세포수 + 월·연중일 + 지점. 132열
 - 결측: ffill_flag(검증에서 자동 선택). 모델: LightGBM L2(log10), extra_trees, 146회(공식 검증 early stopping). 최종 모델 학습 범위는 6장 참조(11-05 변경)
-- 성능: 검증 2025 rmse_log10 0.704 / R² 0.173 / F1 0.651, 롤링 2022 0.832, 2023 0.763. persistence 0.883 대비 20% 개선
+- 성능: 검증 2025 rmse_log10 0.704 / NSE 0.173 / 피어슨 R² 0.202 / F1 0.651, 롤링 2022 0.832, 2023 0.763. persistence 0.883 대비 20% 개선. (운영사무국 답변: 공식 R²는 피어슨 상관계수 제곱, 원 단위)
 - 목표(R² 0.6·NSE 0.5) 미달. 원인·시도 내역은 `docs/method_description.md` 5~7절
 - 재현: `make data && make train` → `reports/submission.csv`. 재현 확인 결과는 method_description 8절
 

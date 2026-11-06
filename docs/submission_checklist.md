@@ -4,7 +4,7 @@
 
 | 산출물 | 위치 | 상태 (10-26) |
 |---|---|---|
-| 학습 모델(재현 코드) | 저장소 전체. `make data && make train` | 11-05 Q&A ⑤ 반영(최종 모델 train만 학습). Linux 재현 확인 완료, **Windows 재확인 필요** |
+| 학습 모델(재현 코드) | 저장소 전체. `make data && make train` | 11-05 Q&A ⑤ 반영(최종 모델 train만 학습). Linux·Windows 재현 확인 완료 |
 | 예측 결과 파일 | `reports/submission.csv` (124행) | 11-05 교체(train만 학습한 모델). 양식 검사 통과 |
 | 방법 설명서 | `docs/method_description.md` | 수치 확정. |
 
