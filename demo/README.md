@@ -1,6 +1,8 @@
 # demo/ — 추론 과정 데모 영상
 
-이 폴더에 데모 영상 파일(`demo_inference.mp4`)을 넣는다. 아래는 녹화 시나리오다.
+`demo_inference.mp4` (1280×720, 약 66초): 저장소에서 실제로 실행한 아래 명령과 그 출력을 터미널 화면으로 재생한 영상이다.
+출력은 2026-11-06 Ubuntu 24.04 / Python 3.13 환경에서 `scripts/make_dataset.py`, `scripts/predict.py`, `scripts/score_submission.py`, `scripts/evaluate.py`를 실행해 그대로 캡처했고, 끝에 `figures/`의 결과 그림 2장을 보여 준다.
+아래는 같은 내용을 직접 녹화할 때의 시나리오다.
 
 # 데모 영상 시나리오 (추론 과정, 약 3분)
 
