@@ -64,7 +64,7 @@ pyparsing==3.1.1
 pytest==9.1.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.3
-pyyaml==6.0.1
+pyyaml>=6.0.1  # Python 3.14 에서는 6.0.3 이상이 설치됨 (6.0.1 은 3.14용 wheel 없음)
 pyzmq==27.2.0
 referencing==0.37.0
 requests==2.34.2
